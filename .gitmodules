@@ -12,7 +12,7 @@
 	url = ../thirdparty-harfbuzz.git
 [submodule "thirdparty/jpeg"]
 	path = thirdparty/libjpeg
-	url = ../libjpeg.git
+	url = ../thirdparty-libjpeg.git
 [submodule "thirdparty/lcms2"]
 	path = thirdparty/lcms2
 	url = ../thirdparty-lcms2.git
