@@ -292,12 +292,12 @@ close_dctd(fz_context *ctx, void *state_)
 		goto skip;
 	}
 
-	/* We call jpeg_abort rather than the more usual
+	/* We call LJPEG_jpeg_abort rather than the more usual
 	 * LJPEG_jpeg_finish_decompress here. This has the same effect,
 	 * but doesn't spew warnings if we didn't read enough data etc.
 	 */
 	if (state->init)
-		jpeg_abort((LJPEG_j_common_ptr)&state->cinfo);
+		LJPEG_jpeg_abort((LJPEG_j_common_ptr)&state->cinfo);
 
 skip:
 	if (state->cinfo.src)
