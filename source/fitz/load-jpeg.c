@@ -378,7 +378,7 @@ fz_load_jpeg(fz_context *ctx, const unsigned char *rbuf, size_t rlen)
 		stride = image->stride - image->w * image->n;
 		while (cinfo.output_scanline < cinfo.output_height)
 		{
-			jpeg_read_scanlines(&cinfo, row, 1);
+			LJPEG_jpeg_read_scanlines(&cinfo, row, 1);
 			sp = row[0];
 			for (x = 0; x < cinfo.output_width; x++)
 			{

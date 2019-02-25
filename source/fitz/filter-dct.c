@@ -226,15 +226,15 @@ next_dctd(fz_context *ctx, fz_stream *stm, size_t max)
 		{
 		case 3:
 			if (state->color_transform)
-				cinfo->jpeg_color_space = JCS_YCbCr;
+				cinfo->jpeg_color_space = LJPEG_JCS_YCbCr;
 			else
-				cinfo->jpeg_color_space = JCS_RGB;
+				cinfo->jpeg_color_space = LJPEG_JCS_RGB;
 			break;
 		case 4:
 			if (state->color_transform)
-				cinfo->jpeg_color_space = JCS_YCCK;
+				cinfo->jpeg_color_space = LJPEG_JCS_YCCK;
 			else
-				cinfo->jpeg_color_space = JCS_CMYK;
+				cinfo->jpeg_color_space = LJPEG_JCS_CMYK;
 			break;
 		}
 
@@ -259,12 +259,12 @@ next_dctd(fz_context *ctx, fz_stream *stm, size_t max)
 
 		if (p + state->stride <= ep)
 		{
-			jpeg_read_scanlines(cinfo, &p, 1);
+			LJPEG_jpeg_read_scanlines(cinfo, &p, 1);
 			p += state->stride;
 		}
 		else
 		{
-			jpeg_read_scanlines(cinfo, &state->scanline, 1);
+			LJPEG_jpeg_read_scanlines(cinfo, &state->scanline, 1);
 			state->rp = state->scanline;
 			state->wp = state->scanline + state->stride;
 		}
