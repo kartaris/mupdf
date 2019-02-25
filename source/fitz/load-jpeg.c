@@ -74,17 +74,17 @@ static void error_exit(LJPEG_j_common_ptr cinfo)
 	fz_throw(ctx, FZ_ERROR_GENERIC, "jpeg error: %s", msg);
 }
 
-static void init_source(LJPEG_j_decompress_ptr cinfo)
+static void LJPEG_init_source(LJPEG_j_decompress_ptr cinfo)
 {
 	/* nothing to do */
 }
 
-static void term_source(LJPEG_j_decompress_ptr cinfo)
+static void LJPEG_term_source(LJPEG_j_decompress_ptr cinfo)
 {
 	/* nothing to do */
 }
 
-static boolean fill_input_buffer(LJPEG_j_decompress_ptr cinfo)
+static boolean LJPEG_fill_input_buffer(LJPEG_j_decompress_ptr cinfo)
 {
 	static unsigned char eoi[2] = { 0xFF, JPEG_EOI };
 	struct jpeg_source_mgr *src = cinfo->src;
@@ -93,7 +93,7 @@ static boolean fill_input_buffer(LJPEG_j_decompress_ptr cinfo)
 	return 1;
 }
 
-static void skip_input_data(LJPEG_j_decompress_ptr cinfo, long num_bytes)
+static void LJPEG_skip_input_data(LJPEG_j_decompress_ptr cinfo, long num_bytes)
 {
 	struct jpeg_source_mgr *src = cinfo->src;
 	if (num_bytes > 0)
@@ -326,11 +326,11 @@ fz_load_jpeg(fz_context *ctx, const unsigned char *rbuf, size_t rlen)
 		LJPEG_jpeg_create_decompress(&cinfo);
 
 		cinfo.src = &src;
-		src.init_source = init_source;
-		src.fill_input_buffer = fill_input_buffer;
-		src.skip_input_data = skip_input_data;
+		src.LJPEG_init_source = LJPEG_init_source;
+		src.LJPEG_fill_input_buffer = LJPEG_fill_input_buffer;
+		src.LJPEG_skip_input_data = LJPEG_skip_input_data;
 		src.resync_to_restart = jpeg_resync_to_restart;
-		src.term_source = term_source;
+		src.LJPEG_term_source = LJPEG_term_source;
 		src.next_input_byte = rbuf;
 		src.bytes_in_buffer = rlen;
 
@@ -436,11 +436,11 @@ fz_load_jpeg_info(fz_context *ctx, const unsigned char *rbuf, size_t rlen, int *
 		LJPEG_jpeg_create_decompress(&cinfo);
 
 		cinfo.src = &src;
-		src.init_source = init_source;
-		src.fill_input_buffer = fill_input_buffer;
-		src.skip_input_data = skip_input_data;
+		src.LJPEG_init_source = LJPEG_init_source;
+		src.LJPEG_fill_input_buffer = LJPEG_fill_input_buffer;
+		src.LJPEG_skip_input_data = LJPEG_skip_input_data;
 		src.resync_to_restart = jpeg_resync_to_restart;
-		src.term_source = term_source;
+		src.LJPEG_term_source = LJPEG_term_source;
 		src.next_input_byte = rbuf;
 		src.bytes_in_buffer = rlen;
 

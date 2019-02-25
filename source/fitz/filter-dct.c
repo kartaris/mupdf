@@ -141,7 +141,7 @@ static void skip_input_data_dct(LJPEG_j_decompress_ptr cinfo, long num_bytes)
 		while ((size_t)num_bytes > src->bytes_in_buffer)
 		{
 			num_bytes -= (long)src->bytes_in_buffer;
-			(void) src->fill_input_buffer(cinfo);
+			(void) src->LJPEG_fill_input_buffer(cinfo);
 		}
 		src->next_input_byte += num_bytes;
 		src->bytes_in_buffer -= num_bytes;
@@ -187,11 +187,11 @@ next_dctd(fz_context *ctx, fz_stream *stm, size_t max)
 			(void)fz_read_byte(ctx, state->chain);
 
 		cinfo->src = &state->srcmgr;
-		cinfo->src->init_source = init_source_dct;
-		cinfo->src->fill_input_buffer = fill_input_buffer_dct;
-		cinfo->src->skip_input_data = skip_input_data_dct;
+		cinfo->src->LJPEG_init_source = init_source_dct;
+		cinfo->src->LJPEG_fill_input_buffer = fill_input_buffer_dct;
+		cinfo->src->LJPEG_skip_input_data = skip_input_data_dct;
 		cinfo->src->resync_to_restart = jpeg_resync_to_restart;
-		cinfo->src->term_source = term_source_dct;
+		cinfo->src->LJPEG_term_source = term_source_dct;
 
 		/* optionally load additional JPEG tables first */
 		if (state->jpegtables)
