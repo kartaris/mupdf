@@ -4,7 +4,7 @@
 #include <jpeglib.h>
 
 #ifndef SHARE_JPEG
-typedef void * backing_store_ptr;
+typedef void * LJPEG_LJPEG_backing_store_ptr;
 #include "jmemcust.h"
 #endif
 
@@ -23,7 +23,7 @@ struct fz_dctd_s
 	unsigned char *scanline;
 	unsigned char *rp, *wp;
 	struct LJPEG_jpeg_decompress_struct cinfo;
-	struct jpeg_source_mgr srcmgr;
+	struct LJPEG_jpeg_source_mgr srcmgr;
 	struct LJPEG_jpeg_error_mgr errmgr;
 	jmp_buf jb;
 	char msg[JMSG_LENGTH_MAX];
@@ -106,7 +106,7 @@ static void term_source_dct(LJPEG_j_decompress_ptr cinfo)
 
 static boolean fill_input_buffer_dct(LJPEG_j_decompress_ptr cinfo)
 {
-	struct jpeg_source_mgr *src = cinfo->src;
+	struct LJPEG_jpeg_source_mgr *src = cinfo->src;
 	fz_dctd *state = JZ_DCT_STATE_FROM_CINFO(cinfo);
 	fz_context *ctx = state->ctx;
 	fz_stream *curr_stm = state->curr_stm;
@@ -135,7 +135,7 @@ static boolean fill_input_buffer_dct(LJPEG_j_decompress_ptr cinfo)
 
 static void skip_input_data_dct(LJPEG_j_decompress_ptr cinfo, long num_bytes)
 {
-	struct jpeg_source_mgr *src = cinfo->src;
+	struct LJPEG_jpeg_source_mgr *src = cinfo->src;
 	if (num_bytes > 0)
 	{
 		while ((size_t)num_bytes > src->bytes_in_buffer)

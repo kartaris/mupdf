@@ -15,7 +15,7 @@
 
 #else /* SHARE_JPEG */
 
-typedef void * backing_store_ptr;
+typedef void * LJPEG_LJPEG_backing_store_ptr;
 #include "jmemcust.h"
 
 #define JZ_CTX_FROM_CINFO(c) (fz_context *)(GET_CUST_MEM_DATA(c)->priv)
@@ -87,7 +87,7 @@ static void LJPEG_term_source(LJPEG_j_decompress_ptr cinfo)
 static boolean LJPEG_fill_input_buffer(LJPEG_j_decompress_ptr cinfo)
 {
 	static unsigned char eoi[2] = { 0xFF, JPEG_EOI };
-	struct jpeg_source_mgr *src = cinfo->src;
+	struct LJPEG_jpeg_source_mgr *src = cinfo->src;
 	src->next_input_byte = eoi;
 	src->bytes_in_buffer = 2;
 	return 1;
@@ -95,7 +95,7 @@ static boolean LJPEG_fill_input_buffer(LJPEG_j_decompress_ptr cinfo)
 
 static void LJPEG_skip_input_data(LJPEG_j_decompress_ptr cinfo, long num_bytes)
 {
-	struct jpeg_source_mgr *src = cinfo->src;
+	struct LJPEG_jpeg_source_mgr *src = cinfo->src;
 	if (num_bytes > 0)
 	{
 		size_t skip = (size_t)num_bytes; /* size_t may be 64bit */
@@ -120,11 +120,11 @@ enum {
 	MAX_ICC_PARTS = 256
 };
 
-static fz_colorspace *extract_icc_profile(fz_context *ctx, jpeg_saved_marker_ptr init_marker, fz_colorspace *colorspace)
+static fz_colorspace *extract_icc_profile(fz_context *ctx, LJPEG_jpeg_saved_marker_ptr init_marker, fz_colorspace *colorspace)
 {
 #if FZ_ENABLE_ICC
 	const char idseq[] = { 'I', 'C', 'C', '_', 'P', 'R', 'O', 'F', 'I', 'L', 'E', '\0'};
-	jpeg_saved_marker_ptr marker = init_marker;
+	LJPEG_jpeg_saved_marker_ptr marker = init_marker;
 	fz_buffer *buf = NULL;
 	fz_colorspace *icc;
 	int part = 1;
@@ -193,7 +193,7 @@ static fz_colorspace *extract_icc_profile(fz_context *ctx, jpeg_saved_marker_ptr
 #endif
 }
 
-static int extract_exif_resolution(jpeg_saved_marker_ptr marker, int *xres, int *yres)
+static int extract_exif_resolution(LJPEG_jpeg_saved_marker_ptr marker, int *xres, int *yres)
 {
 	int is_big_endian;
 	const unsigned char *data;
@@ -259,7 +259,7 @@ static int extract_exif_resolution(jpeg_saved_marker_ptr marker, int *xres, int 
 	return 1;
 }
 
-static int extract_app13_resolution(jpeg_saved_marker_ptr marker, int *xres, int *yres)
+static int extract_app13_resolution(LJPEG_jpeg_saved_marker_ptr marker, int *xres, int *yres)
 {
 	const unsigned char *data, *data_end;
 
@@ -300,7 +300,7 @@ fz_load_jpeg(fz_context *ctx, const unsigned char *rbuf, size_t rlen)
 {
 	struct LJPEG_jpeg_decompress_struct cinfo;
 	struct LJPEG_jpeg_error_mgr err;
-	struct jpeg_source_mgr src;
+	struct LJPEG_jpeg_source_mgr src;
 	unsigned char *row[1], *sp, *dp;
 	fz_colorspace *colorspace = NULL;
 	unsigned int x;
@@ -418,7 +418,7 @@ fz_load_jpeg_info(fz_context *ctx, const unsigned char *rbuf, size_t rlen, int *
 {
 	struct LJPEG_jpeg_decompress_struct cinfo;
 	struct LJPEG_jpeg_error_mgr err;
-	struct jpeg_source_mgr src;
+	struct LJPEG_jpeg_source_mgr src;
 	fz_colorspace *icc = NULL;
 
 	*cspacep = NULL;

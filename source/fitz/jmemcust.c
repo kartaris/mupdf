@@ -23,7 +23,7 @@
 #include "jmemcust.h"
 
 LJPEG_GLOBAL(void *)
-jpeg_get_small (LJPEG_j_common_ptr cinfo, size_t sizeofobject)
+LJPEG_jpeg_get_small (LJPEG_j_common_ptr cinfo, size_t sizeofobject)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
 
@@ -31,7 +31,7 @@ jpeg_get_small (LJPEG_j_common_ptr cinfo, size_t sizeofobject)
 }
 
 LJPEG_GLOBAL(void)
-jpeg_free_small (LJPEG_j_common_ptr cinfo, void * object, size_t sizeofobject)
+LJPEG_jpeg_free_small (LJPEG_j_common_ptr cinfo, void * object, size_t sizeofobject)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
 
@@ -46,7 +46,7 @@ jpeg_free_small (LJPEG_j_common_ptr cinfo, void * object, size_t sizeofobject)
  */
 
 LJPEG_GLOBAL(void FAR *)
-jpeg_get_large (LJPEG_j_common_ptr cinfo, size_t sizeofobject)
+LJPEG_jpeg_get_large (LJPEG_j_common_ptr cinfo, size_t sizeofobject)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
 
@@ -54,7 +54,7 @@ jpeg_get_large (LJPEG_j_common_ptr cinfo, size_t sizeofobject)
 }
 
 LJPEG_GLOBAL(void)
-jpeg_free_large (LJPEG_j_common_ptr cinfo, void FAR * object, size_t sizeofobject)
+LJPEG_jpeg_free_large (LJPEG_j_common_ptr cinfo, void FAR * object, size_t sizeofobject)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
 
@@ -67,7 +67,7 @@ jpeg_free_large (LJPEG_j_common_ptr cinfo, void FAR * object, size_t sizeofobjec
  */
 
 LJPEG_GLOBAL(long)
-jpeg_mem_available (LJPEG_j_common_ptr cinfo, long min_bytes_needed,
+LJPEG_jpeg_mem_available (LJPEG_j_common_ptr cinfo, long min_bytes_needed,
 		long max_bytes_needed, long already_allocated)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
@@ -81,12 +81,12 @@ jpeg_mem_available (LJPEG_j_common_ptr cinfo, long min_bytes_needed,
 
 /*
  * Backing store (temporary file) management.
- * Since jpeg_mem_available always promised the moon,
+ * Since LJPEG_jpeg_mem_available always promised the moon,
  * this should never be called and we can just error out.
  */
 
 LJPEG_GLOBAL(void)
-jpeg_open_backing_store (LJPEG_j_common_ptr cinfo, backing_store_ptr info,
+LJPEG_jpeg_open_backing_store (LJPEG_j_common_ptr cinfo, LJPEG_LJPEG_backing_store_ptr info,
 		long total_bytes_needed)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
@@ -104,7 +104,7 @@ jpeg_open_backing_store (LJPEG_j_common_ptr cinfo, backing_store_ptr info,
  */
 
 LJPEG_GLOBAL(long)
-jpeg_mem_init (LJPEG_j_common_ptr cinfo)
+LJPEG_jpeg_mem_init (LJPEG_j_common_ptr cinfo)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
 	long ret = 0;
@@ -116,7 +116,7 @@ jpeg_mem_init (LJPEG_j_common_ptr cinfo)
 }
 
 LJPEG_GLOBAL(void)
-jpeg_mem_term (LJPEG_j_common_ptr cinfo)
+LJPEG_jpeg_mem_term (LJPEG_j_common_ptr cinfo)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
 
