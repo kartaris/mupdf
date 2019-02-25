@@ -21,14 +21,14 @@ typedef void * backing_store_ptr;
 #define JZ_CTX_FROM_CINFO(c) (fz_context *)(GET_CUST_MEM_DATA(c)->priv)
 
 static void *
-fz_jpg_mem_alloc(j_common_ptr cinfo, size_t size)
+fz_jpg_mem_alloc(LJPEG_j_common_ptr cinfo, size_t size)
 {
 	fz_context *ctx = JZ_CTX_FROM_CINFO(cinfo);
 	return fz_malloc_no_throw(ctx, size);
 }
 
 static void
-fz_jpg_mem_free(j_common_ptr cinfo, void *object, size_t size)
+fz_jpg_mem_free(LJPEG_j_common_ptr cinfo, void *object, size_t size)
 {
 	fz_context *ctx = JZ_CTX_FROM_CINFO(cinfo);
 	fz_free(ctx, object);
@@ -65,7 +65,7 @@ fz_jpg_mem_term(struct jpeg_decompress_struct *cinfo)
 
 #endif /* SHARE_JPEG */
 
-static void error_exit(j_common_ptr cinfo)
+static void error_exit(LJPEG_j_common_ptr cinfo)
 {
 	char msg[JMSG_LENGTH_MAX];
 	fz_context *ctx = JZ_CTX_FROM_CINFO(cinfo);
@@ -74,17 +74,17 @@ static void error_exit(j_common_ptr cinfo)
 	fz_throw(ctx, FZ_ERROR_GENERIC, "jpeg error: %s", msg);
 }
 
-static void init_source(j_decompress_ptr cinfo)
+static void init_source(LJPEG_j_decompress_ptr cinfo)
 {
 	/* nothing to do */
 }
 
-static void term_source(j_decompress_ptr cinfo)
+static void term_source(LJPEG_j_decompress_ptr cinfo)
 {
 	/* nothing to do */
 }
 
-static boolean fill_input_buffer(j_decompress_ptr cinfo)
+static boolean fill_input_buffer(LJPEG_j_decompress_ptr cinfo)
 {
 	static unsigned char eoi[2] = { 0xFF, JPEG_EOI };
 	struct jpeg_source_mgr *src = cinfo->src;
@@ -93,7 +93,7 @@ static boolean fill_input_buffer(j_decompress_ptr cinfo)
 	return 1;
 }
 
-static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
+static void skip_input_data(LJPEG_j_decompress_ptr cinfo, long num_bytes)
 {
 	struct jpeg_source_mgr *src = cinfo->src;
 	if (num_bytes > 0)

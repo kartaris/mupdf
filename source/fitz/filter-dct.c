@@ -43,14 +43,14 @@ struct fz_dctd_s
 #define JZ_DCT_STATE_FROM_CINFO(c) (fz_dctd *)(GET_CUST_MEM_DATA(c)->priv)
 
 static void *
-fz_dct_mem_alloc(j_common_ptr cinfo, size_t size)
+fz_dct_mem_alloc(LJPEG_j_common_ptr cinfo, size_t size)
 {
 	fz_dctd *state = JZ_DCT_STATE_FROM_CINFO(cinfo);
 	return fz_malloc_no_throw(state->ctx, size);
 }
 
 static void
-fz_dct_mem_free(j_common_ptr cinfo, void *object, size_t size)
+fz_dct_mem_free(LJPEG_j_common_ptr cinfo, void *object, size_t size)
 {
 	fz_dctd *state = JZ_DCT_STATE_FROM_CINFO(cinfo);
 	fz_free(state->ctx, object);
@@ -59,7 +59,7 @@ fz_dct_mem_free(j_common_ptr cinfo, void *object, size_t size)
 static void
 fz_dct_mem_init(fz_dctd *state)
 {
-	j_common_ptr cinfo = (j_common_ptr)&state->cinfo;
+	LJPEG_j_common_ptr cinfo = (LJPEG_j_common_ptr)&state->cinfo;
 	jpeg_cust_mem_data *custmptr;
 
 	custmptr = fz_malloc_struct(state->ctx, jpeg_cust_mem_data);
@@ -87,24 +87,24 @@ fz_dct_mem_term(fz_dctd *state)
 
 #endif /* SHARE_JPEG */
 
-static void error_exit_dct(j_common_ptr cinfo)
+static void error_exit_dct(LJPEG_j_common_ptr cinfo)
 {
 	fz_dctd *state = JZ_DCT_STATE_FROM_CINFO(cinfo);
 	cinfo->err->format_message(cinfo, state->msg);
 	longjmp(state->jb, 1);
 }
 
-static void init_source_dct(j_decompress_ptr cinfo)
+static void init_source_dct(LJPEG_j_decompress_ptr cinfo)
 {
 	/* nothing to do */
 }
 
-static void term_source_dct(j_decompress_ptr cinfo)
+static void term_source_dct(LJPEG_j_decompress_ptr cinfo)
 {
 	/* nothing to do */
 }
 
-static boolean fill_input_buffer_dct(j_decompress_ptr cinfo)
+static boolean fill_input_buffer_dct(LJPEG_j_decompress_ptr cinfo)
 {
 	struct jpeg_source_mgr *src = cinfo->src;
 	fz_dctd *state = JZ_DCT_STATE_FROM_CINFO(cinfo);
@@ -133,7 +133,7 @@ static boolean fill_input_buffer_dct(j_decompress_ptr cinfo)
 	return 1;
 }
 
-static void skip_input_data_dct(j_decompress_ptr cinfo, long num_bytes)
+static void skip_input_data_dct(LJPEG_j_decompress_ptr cinfo, long num_bytes)
 {
 	struct jpeg_source_mgr *src = cinfo->src;
 	if (num_bytes > 0)
@@ -152,7 +152,7 @@ static int
 next_dctd(fz_context *ctx, fz_stream *stm, size_t max)
 {
 	fz_dctd *state = stm->state;
-	j_decompress_ptr cinfo = &state->cinfo;
+	LJPEG_j_decompress_ptr cinfo = &state->cinfo;
 	unsigned char *p = state->buffer;
 	unsigned char *ep;
 
@@ -297,7 +297,7 @@ close_dctd(fz_context *ctx, void *state_)
 	 * but doesn't spew warnings if we didn't read enough data etc.
 	 */
 	if (state->init)
-		jpeg_abort((j_common_ptr)&state->cinfo);
+		jpeg_abort((LJPEG_j_common_ptr)&state->cinfo);
 
 skip:
 	if (state->cinfo.src)

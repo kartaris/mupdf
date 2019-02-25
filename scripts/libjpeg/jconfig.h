@@ -27,13 +27,13 @@ typedef unsigned char boolean;
 
 #endif /* JPEG_INTERNALS */
 
-#ifdef JPEG_CJPEG_DJPEG
+#ifdef LJPEG_JPEG_CJPEG_DJPEG
 
-#define BMP_SUPPORTED		/* BMP image file format */
-#define GIF_SUPPORTED		/* GIF image file format */
-#define PPM_SUPPORTED		/* PBMPLUS PPM/PGM image file format */
-#undef RLE_SUPPORTED		/* Utah RLE image file format */
-#define TARGA_SUPPORTED		/* Targa image file format */
+#define LJPEG_BMP_SUPPORTED		/* BMP image file format */
+#define LJPEG_LJPEG_GIF_SUPPORTED		/* GIF image file format */
+#define LJPEG_PPM_SUPPORTED		/* PBMPLUS PPM/PGM image file format */
+#undef LJPEG_RLE_SUPPORTED		/* Utah RLE image file format */
+#define LJPEG_TARGA_SUPPORTED		/* Targa image file format */
 
 #define TWO_FILE_COMMANDLINE	/* optional */
 #define USE_SETMODE		/* Microsoft has setmode() */
@@ -41,4 +41,4 @@ typedef unsigned char boolean;
 #undef DONT_USE_B_MODE
 #undef PROGRESS_REPORT		/* optional */
 
-#endif /* JPEG_CJPEG_DJPEG */
+#endif /* LJPEG_JPEG_CJPEG_DJPEG */
