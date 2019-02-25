@@ -329,13 +329,13 @@ fz_load_jpeg(fz_context *ctx, const unsigned char *rbuf, size_t rlen)
 		src.LJPEG_init_source = LJPEG_init_source;
 		src.LJPEG_fill_input_buffer = LJPEG_fill_input_buffer;
 		src.LJPEG_skip_input_data = LJPEG_skip_input_data;
-		src.resync_to_restart = jpeg_resync_to_restart;
+		src.resync_to_restart = LJPEG_jpeg_resync_to_restart;
 		src.LJPEG_term_source = LJPEG_term_source;
 		src.next_input_byte = rbuf;
 		src.bytes_in_buffer = rlen;
 
-		jpeg_save_markers(&cinfo, JPEG_APP0+1, 0xffff);
-		jpeg_save_markers(&cinfo, JPEG_APP0+13, 0xffff);
+		LJPEG_jpeg_save_markers(&cinfo, JPEG_APP0+1, 0xffff);
+		LJPEG_jpeg_save_markers(&cinfo, JPEG_APP0+13, 0xffff);
 
 		LJPEG_jpeg_read_header(&cinfo, 1);
 
@@ -439,14 +439,14 @@ fz_load_jpeg_info(fz_context *ctx, const unsigned char *rbuf, size_t rlen, int *
 		src.LJPEG_init_source = LJPEG_init_source;
 		src.LJPEG_fill_input_buffer = LJPEG_fill_input_buffer;
 		src.LJPEG_skip_input_data = LJPEG_skip_input_data;
-		src.resync_to_restart = jpeg_resync_to_restart;
+		src.resync_to_restart = LJPEG_jpeg_resync_to_restart;
 		src.LJPEG_term_source = LJPEG_term_source;
 		src.next_input_byte = rbuf;
 		src.bytes_in_buffer = rlen;
 
-		jpeg_save_markers(&cinfo, JPEG_APP0+1, 0xffff);
-		jpeg_save_markers(&cinfo, JPEG_APP0+13, 0xffff);
-		jpeg_save_markers(&cinfo, JPEG_APP0+2, 0xffff);
+		LJPEG_jpeg_save_markers(&cinfo, JPEG_APP0+1, 0xffff);
+		LJPEG_jpeg_save_markers(&cinfo, JPEG_APP0+13, 0xffff);
+		LJPEG_jpeg_save_markers(&cinfo, JPEG_APP0+2, 0xffff);
 
 		LJPEG_jpeg_read_header(&cinfo, 1);
 

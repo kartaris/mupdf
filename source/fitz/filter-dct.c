@@ -190,7 +190,7 @@ next_dctd(fz_context *ctx, fz_stream *stm, size_t max)
 		cinfo->src->LJPEG_init_source = init_source_dct;
 		cinfo->src->LJPEG_fill_input_buffer = fill_input_buffer_dct;
 		cinfo->src->LJPEG_skip_input_data = skip_input_data_dct;
-		cinfo->src->resync_to_restart = jpeg_resync_to_restart;
+		cinfo->src->resync_to_restart = LJPEG_jpeg_resync_to_restart;
 		cinfo->src->LJPEG_term_source = term_source_dct;
 
 		/* optionally load additional JPEG tables first */

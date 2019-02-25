@@ -87,7 +87,7 @@ struct info
 	int bitcount;
 	int compression;
 	int colors;
-	int rmask, gmask, bmask, amask;
+	int rmask, gmask, LJPEG_bmask, amask;
 	unsigned char palette[256 * 3];
 
 	int extramasks;
@@ -237,12 +237,12 @@ bmp_read_bitmap_info_header(fz_context *ctx, struct info *info, const unsigned c
 		if (info->bitcount == 16) {
 			info->rmask = 0x00007c00;
 			info->gmask = 0x000003e0;
-			info->bmask = 0x0000001f;
+			info->LJPEG_bmask = 0x0000001f;
 			info->amask = 0x00000000;
 		} else if (info->bitcount == 32) {
 			info->rmask = 0x00ff0000;
 			info->gmask = 0x0000ff00;
-			info->bmask = 0x000000ff;
+			info->LJPEG_bmask = 0x000000ff;
 			info->amask = 0x00000000;
 		}
 	}
@@ -254,7 +254,7 @@ bmp_read_bitmap_info_header(fz_context *ctx, struct info *info, const unsigned c
 		if (info->compression == BI_BITFIELDS) {
 			info->rmask = read32(p + 40);
 			info->gmask = read32(p + 44);
-			info->bmask = read32(p + 48);
+			info->LJPEG_bmask = read32(p + 48);
 		}
 	}
 	if (size >= 56)
@@ -285,7 +285,7 @@ bmp_read_extra_masks(fz_context *ctx, struct info *info, const unsigned char *p,
 
 		info->rmask = read32(p + 0);
 		info->gmask = read32(p + 4);
-		info->bmask = read32(p + 8);
+		info->LJPEG_bmask = read32(p + 8);
 	}
 	else if (info->compression == BI_ALPHABITS)
 	{
@@ -296,7 +296,7 @@ bmp_read_extra_masks(fz_context *ctx, struct info *info, const unsigned char *p,
 		/* ignore alpha mask */
 		info->rmask = read32(p + 0);
 		info->gmask = read32(p + 4);
-		info->bmask = read32(p + 8);
+		info->LJPEG_bmask = read32(p + 8);
 	}
 
 	return p + size;
@@ -747,7 +747,7 @@ bmp_read_bitmap(fz_context *ctx, struct info *info, const unsigned char *p, cons
 				unsigned int sample = (sp[3] << 24) | (sp[2] << 16) | (sp[1] << 8) | sp[0];
 				unsigned int r = (sample & info->rmask) >> info->rshift;
 				unsigned int g = (sample & info->gmask) >> info->gshift;
-				unsigned int b = (sample & info->bmask) >> info->bshift;
+				unsigned int b = (sample & info->LJPEG_bmask) >> info->bshift;
 				unsigned int a = info->abits == 0 ? 255 : (sample & info->amask) >> info->ashift;
 				*dp++ = (r * rmult) >> rtrunc;
 				*dp++ = (g * gmult) >> gtrunc;
@@ -772,7 +772,7 @@ bmp_read_bitmap(fz_context *ctx, struct info *info, const unsigned char *p, cons
 				unsigned int sample = (sp[1] << 8) | sp[0];
 				unsigned int r = (sample & info->rmask) >> info->rshift;
 				unsigned int g = (sample & info->gmask) >> info->gshift;
-				unsigned int b = (sample & info->bmask) >> info->bshift;
+				unsigned int b = (sample & info->LJPEG_bmask) >> info->bshift;
 				unsigned int a = (sample & info->amask) >> info->ashift;
 				*dp++ = (r * rmult) >> rtrunc;
 				*dp++ = (g * gmult) >> gtrunc;
@@ -884,7 +884,7 @@ bmp_read_image(fz_context *ctx, struct info *info, const unsigned char *p, size_
 
 	maskinfo(info->rmask, &info->rshift, &info->rbits);
 	maskinfo(info->gmask, &info->gshift, &info->gbits);
-	maskinfo(info->bmask, &info->bshift, &info->bbits);
+	maskinfo(info->LJPEG_bmask, &info->bshift, &info->bbits);
 	maskinfo(info->amask, &info->ashift, &info->abits);
 
 	if (info->width <= 0 || info->width > SHRT_MAX || info->height <= 0 || info->height > SHRT_MAX)
