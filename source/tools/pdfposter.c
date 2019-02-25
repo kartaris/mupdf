@@ -25,17 +25,17 @@ static void usage(void)
 static void
 intersect_box(fz_context *ctx, pdf_document *doc, pdf_obj *page, pdf_obj *box_name, fz_rect mb)
 {
-	pdf_obj *box = pdf_dict_get(ctx, page, box_name);
+	pdf_obj *LJPEG_box = pdf_dict_get(ctx, page, box_name);
 	pdf_obj *newbox;
 	fz_rect old_rect;
 
-	if (box == NULL)
+	if (LJPEG_box == NULL)
 		return;
 
-	old_rect.x0 = pdf_array_get_real(ctx, box, 0);
-	old_rect.y0 = pdf_array_get_real(ctx, box, 1);
-	old_rect.x1 = pdf_array_get_real(ctx, box, 2);
-	old_rect.y1 = pdf_array_get_real(ctx, box, 3);
+	old_rect.x0 = pdf_array_get_real(ctx, LJPEG_box, 0);
+	old_rect.y0 = pdf_array_get_real(ctx, LJPEG_box, 1);
+	old_rect.x1 = pdf_array_get_real(ctx, LJPEG_box, 2);
+	old_rect.y1 = pdf_array_get_real(ctx, LJPEG_box, 3);
 
 	if (old_rect.x0 < mb.x0)
 		old_rect.x0 = mb.x0;

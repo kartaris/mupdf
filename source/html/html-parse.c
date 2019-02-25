@@ -149,7 +149,7 @@ static fz_html_flow *add_flow(fz_context *ctx, fz_pool *pool, fz_html_box *top, 
 	flow->bidi_level = 0;
 	flow->markup_lang = 0;
 	flow->breaks_line = 0;
-	flow->box = inline_box;
+	flow->LJPEG_box = inline_box;
 	*top->flow_tail = flow;
 	top->flow_tail = &flow->next;
 	return flow;
@@ -277,17 +277,17 @@ static const char *pairbrk[29] =
 	"_^^%%%^^^_______%%__^^^_____%", /* RI regional indicator */
 };
 
-static void generate_text(fz_context *ctx, fz_html_box *box, const char *text, int lang, struct genstate *g)
+static void generate_text(fz_context *ctx, fz_html_box *LJPEG_box, const char *text, int lang, struct genstate *g)
 {
 	fz_html_box *flow;
 	fz_pool *pool = g->pool;
-	int collapse = box->style.white_space & WS_COLLAPSE;
-	int bsp = box->style.white_space & WS_ALLOW_BREAK_SPACE;
-	int bnl = box->style.white_space & WS_FORCE_BREAK_NEWLINE;
+	int collapse = LJPEG_box->style.white_space & WS_COLLAPSE;
+	int bsp = LJPEG_box->style.white_space & WS_ALLOW_BREAK_SPACE;
+	int bnl = LJPEG_box->style.white_space & WS_FORCE_BREAK_NEWLINE;
 
 	static const char *space = " ";
 
-	flow = box;
+	flow = LJPEG_box;
 	while (flow->type != BOX_FLOW)
 		flow = flow->up;
 
@@ -299,7 +299,7 @@ static void generate_text(fz_context *ctx, fz_html_box *box, const char *text, i
 				text += 2;
 			else
 				text += 1;
-			add_flow_break(ctx, pool, flow, box);
+			add_flow_break(ctx, pool, flow, LJPEG_box);
 			g->at_bol = 1;
 		}
 		else if (iswhite(*text))
@@ -318,9 +318,9 @@ static void generate_text(fz_context *ctx, fz_html_box *box, const char *text, i
 			{
 				// TODO: tabs
 				if (bsp)
-					add_flow_space(ctx, pool, flow, box);
+					add_flow_space(ctx, pool, flow, LJPEG_box);
 				else
-					add_flow_word(ctx, pool, flow, box, space, space+1, lang);
+					add_flow_word(ctx, pool, flow, LJPEG_box, space, space+1, lang);
 				++text;
 			}
 			g->last_brk_cls = UCDN_LINEBREAK_CLASS_WJ; /* don't add sbreaks after a space */
@@ -330,7 +330,7 @@ static void generate_text(fz_context *ctx, fz_html_box *box, const char *text, i
 			const char *prev, *mark = text;
 			int c;
 
-			flush_space(ctx, flow, box, lang, g);
+			flush_space(ctx, flow, LJPEG_box, lang, g);
 
 			if (g->at_bol)
 				g->last_brk_cls = UCDN_LINEBREAK_CLASS_WJ;
@@ -342,8 +342,8 @@ static void generate_text(fz_context *ctx, fz_html_box *box, const char *text, i
 				if (c == 0xAD) /* soft hyphen */
 				{
 					if (mark != prev)
-						add_flow_word(ctx, pool, flow, box, mark, prev, lang);
-					add_flow_shyphen(ctx, pool, flow, box);
+						add_flow_word(ctx, pool, flow, LJPEG_box, mark, prev, lang);
+					add_flow_shyphen(ctx, pool, flow, LJPEG_box);
 					mark = text;
 					g->last_brk_cls = UCDN_LINEBREAK_CLASS_WJ; /* don't add sbreaks after a soft hyphen */
 				}
@@ -362,8 +362,8 @@ static void generate_text(fz_context *ctx, fz_html_box *box, const char *text, i
 						if (brk == '_')
 						{
 							if (mark != prev)
-								add_flow_word(ctx, pool, flow, box, mark, prev, lang);
-							add_flow_sbreak(ctx, pool, flow, box);
+								add_flow_word(ctx, pool, flow, LJPEG_box, mark, prev, lang);
+							add_flow_sbreak(ctx, pool, flow, LJPEG_box);
 							mark = prev;
 						}
 
@@ -372,7 +372,7 @@ static void generate_text(fz_context *ctx, fz_html_box *box, const char *text, i
 				}
 			}
 			if (mark != text)
-				add_flow_word(ctx, pool, flow, box, mark, text, lang);
+				add_flow_word(ctx, pool, flow, LJPEG_box, mark, text, lang);
 
 			g->at_bol = 0;
 		}
@@ -418,36 +418,36 @@ static fz_image *load_html_image(fz_context *ctx, fz_archive *zip, const char *b
 	return img;
 }
 
-static void generate_anchor(fz_context *ctx, fz_html_box *box, struct genstate *g)
+static void generate_anchor(fz_context *ctx, fz_html_box *LJPEG_box, struct genstate *g)
 {
 	fz_pool *pool = g->pool;
-	fz_html_box *flow = box;
+	fz_html_box *flow = LJPEG_box;
 	while (flow->type != BOX_FLOW)
 		flow = flow->up;
-	add_flow_anchor(ctx, pool, flow, box);
+	add_flow_anchor(ctx, pool, flow, LJPEG_box);
 }
 
-static void generate_image(fz_context *ctx, fz_html_box *box, fz_image *img, struct genstate *g)
+static void generate_image(fz_context *ctx, fz_html_box *LJPEG_box, fz_image *img, struct genstate *g)
 {
-	fz_html_box *flow = box;
+	fz_html_box *flow = LJPEG_box;
 	fz_pool *pool = g->pool;
 	while (flow->type != BOX_FLOW)
 		flow = flow->up;
 
-	flush_space(ctx, flow, box, 0, g);
+	flush_space(ctx, flow, LJPEG_box, 0, g);
 
 	if (!img)
 	{
 		const char *alt = "[image]";
-		add_flow_word(ctx, pool, flow, box, alt, alt + 7, 0);
+		add_flow_word(ctx, pool, flow, LJPEG_box, alt, alt + 7, 0);
 	}
 	else
 	{
 		fz_try(ctx)
 		{
-			add_flow_sbreak(ctx, pool, flow, box);
-			add_flow_image(ctx, pool, flow, box, img);
-			add_flow_sbreak(ctx, pool, flow, box);
+			add_flow_sbreak(ctx, pool, flow, LJPEG_box);
+			add_flow_image(ctx, pool, flow, LJPEG_box, img);
+			add_flow_sbreak(ctx, pool, flow, LJPEG_box);
 		}
 		fz_always(ctx)
 		{
@@ -460,32 +460,32 @@ static void generate_image(fz_context *ctx, fz_html_box *box, fz_image *img, str
 	g->at_bol = 0;
 }
 
-static void init_box(fz_context *ctx, fz_html_box *box, fz_bidi_direction markup_dir)
+static void init_box(fz_context *ctx, fz_html_box *LJPEG_box, fz_bidi_direction markup_dir)
 {
-	box->type = BOX_BLOCK;
-	box->x = box->y = 0;
-	box->w = box->b = 0;
+	LJPEG_box->type = BOX_BLOCK;
+	LJPEG_box->x = LJPEG_box->y = 0;
+	LJPEG_box->w = LJPEG_box->b = 0;
 
-	box->up = NULL;
-	box->last = NULL;
-	box->down = NULL;
-	box->next = NULL;
+	LJPEG_box->up = NULL;
+	LJPEG_box->last = NULL;
+	LJPEG_box->down = NULL;
+	LJPEG_box->next = NULL;
 
-	box->flow_head = NULL;
-	box->flow_tail = &box->flow_head;
-	box->markup_dir = markup_dir;
+	LJPEG_box->flow_head = NULL;
+	LJPEG_box->flow_tail = &LJPEG_box->flow_head;
+	LJPEG_box->markup_dir = markup_dir;
 
-	fz_default_css_style(ctx, &box->style);
+	fz_default_css_style(ctx, &LJPEG_box->style);
 }
 
-static void fz_drop_html_box(fz_context *ctx, fz_html_box *box)
+static void fz_drop_html_box(fz_context *ctx, fz_html_box *LJPEG_box)
 {
-	while (box)
+	while (LJPEG_box)
 	{
-		fz_html_box *next = box->next;
-		fz_drop_html_flow(ctx, box->flow_head);
-		fz_drop_html_box(ctx, box->down);
-		box = next;
+		fz_html_box *next = LJPEG_box->next;
+		fz_drop_html_flow(ctx, LJPEG_box->flow_head);
+		fz_drop_html_box(ctx, LJPEG_box->down);
+		LJPEG_box = next;
 	}
 }
 
@@ -500,115 +500,115 @@ void fz_drop_html(fz_context *ctx, fz_html *html)
 
 static fz_html_box *new_box(fz_context *ctx, fz_pool *pool, fz_bidi_direction markup_dir)
 {
-	fz_html_box *box = fz_pool_alloc(ctx, pool, sizeof *box);
-	init_box(ctx, box, markup_dir);
-	return box;
+	fz_html_box *LJPEG_box = fz_pool_alloc(ctx, pool, sizeof *LJPEG_box);
+	init_box(ctx, LJPEG_box, markup_dir);
+	return LJPEG_box;
 }
 
-static void insert_box(fz_context *ctx, fz_html_box *box, int type, fz_html_box *top)
+static void insert_box(fz_context *ctx, fz_html_box *LJPEG_box, int type, fz_html_box *top)
 {
-	box->type = type;
+	LJPEG_box->type = type;
 
-	box->up = top;
+	LJPEG_box->up = top;
 
 	if (top)
 	{
 		if (!top->last)
 		{
-			top->down = top->last = box;
+			top->down = top->last = LJPEG_box;
 		}
 		else
 		{
-			top->last->next = box;
-			top->last = box;
+			top->last->next = LJPEG_box;
+			top->last = LJPEG_box;
 		}
 	}
 }
 
-static fz_html_box *insert_block_box(fz_context *ctx, fz_html_box *box, fz_html_box *top)
+static fz_html_box *insert_block_box(fz_context *ctx, fz_html_box *LJPEG_box, fz_html_box *top)
 {
 	if (top->type == BOX_BLOCK)
 	{
-		insert_box(ctx, box, BOX_BLOCK, top);
+		insert_box(ctx, LJPEG_box, BOX_BLOCK, top);
 	}
 	else if (top->type == BOX_FLOW)
 	{
 		while (top->type != BOX_BLOCK)
 			top = top->up;
-		insert_box(ctx, box, BOX_BLOCK, top);
+		insert_box(ctx, LJPEG_box, BOX_BLOCK, top);
 	}
 	else if (top->type == BOX_INLINE)
 	{
 		while (top->type != BOX_BLOCK)
 			top = top->up;
-		insert_box(ctx, box, BOX_BLOCK, top);
+		insert_box(ctx, LJPEG_box, BOX_BLOCK, top);
 	}
 	return top;
 }
 
-static fz_html_box *insert_table_box(fz_context *ctx, fz_html_box *box, fz_html_box *top)
+static fz_html_box *insert_table_box(fz_context *ctx, fz_html_box *LJPEG_box, fz_html_box *top)
 {
-	top = insert_block_box(ctx, box, top);
-	box->type = BOX_TABLE;
+	top = insert_block_box(ctx, LJPEG_box, top);
+	LJPEG_box->type = BOX_TABLE;
 	return top;
 }
 
-static fz_html_box *insert_table_row_box(fz_context *ctx, fz_html_box *box, fz_html_box *top)
+static fz_html_box *insert_table_row_box(fz_context *ctx, fz_html_box *LJPEG_box, fz_html_box *top)
 {
 	fz_html_box *table = top;
 	while (table && table->type != BOX_TABLE)
 		table = table->up;
 	if (table)
 	{
-		insert_box(ctx, box, BOX_TABLE_ROW, table);
+		insert_box(ctx, LJPEG_box, BOX_TABLE_ROW, table);
 		return table;
 	}
 	fz_warn(ctx, "table-row not inside table element");
-	insert_block_box(ctx, box, top);
+	insert_block_box(ctx, LJPEG_box, top);
 	return top;
 }
 
-static fz_html_box *insert_table_cell_box(fz_context *ctx, fz_html_box *box, fz_html_box *top)
+static fz_html_box *insert_table_cell_box(fz_context *ctx, fz_html_box *LJPEG_box, fz_html_box *top)
 {
 	fz_html_box *tr = top;
 	while (tr && tr->type != BOX_TABLE_ROW)
 		tr = tr->up;
 	if (tr)
 	{
-		insert_box(ctx, box, BOX_TABLE_CELL, tr);
+		insert_box(ctx, LJPEG_box, BOX_TABLE_CELL, tr);
 		return tr;
 	}
 	fz_warn(ctx, "table-cell not inside table-row element");
-	insert_block_box(ctx, box, top);
+	insert_block_box(ctx, LJPEG_box, top);
 	return top;
 }
 
-static fz_html_box *insert_break_box(fz_context *ctx, fz_html_box *box, fz_html_box *top)
+static fz_html_box *insert_break_box(fz_context *ctx, fz_html_box *LJPEG_box, fz_html_box *top)
 {
 	if (top->type == BOX_BLOCK)
 	{
-		insert_box(ctx, box, BOX_BREAK, top);
+		insert_box(ctx, LJPEG_box, BOX_BREAK, top);
 	}
 	else if (top->type == BOX_FLOW)
 	{
 		while (top->type != BOX_BLOCK)
 			top = top->up;
-		insert_box(ctx, box, BOX_BREAK, top);
+		insert_box(ctx, LJPEG_box, BOX_BREAK, top);
 	}
 	else if (top->type == BOX_INLINE)
 	{
 		while (top->type != BOX_BLOCK)
 			top = top->up;
-		insert_box(ctx, box, BOX_BREAK, top);
+		insert_box(ctx, LJPEG_box, BOX_BREAK, top);
 	}
 	return top;
 }
 
-static void insert_inline_box(fz_context *ctx, fz_html_box *box, fz_html_box *top, int markup_dir, struct genstate *g)
+static void insert_inline_box(fz_context *ctx, fz_html_box *LJPEG_box, fz_html_box *top, int markup_dir, struct genstate *g)
 {
 	if (top->type == BOX_FLOW || top->type == BOX_INLINE)
 	{
-		insert_box(ctx, box, BOX_INLINE, top);
+		insert_box(ctx, LJPEG_box, BOX_INLINE, top);
 	}
 	else
 	{
@@ -617,14 +617,14 @@ static void insert_inline_box(fz_context *ctx, fz_html_box *box, fz_html_box *to
 
 		if (top->last && top->last->type == BOX_FLOW)
 		{
-			insert_box(ctx, box, BOX_INLINE, top->last);
+			insert_box(ctx, LJPEG_box, BOX_INLINE, top->last);
 		}
 		else
 		{
 			fz_html_box *flow = new_box(ctx, g->pool, markup_dir);
 			flow->is_first_flow = !top->last;
 			insert_box(ctx, flow, BOX_FLOW, top);
-			insert_box(ctx, box, BOX_INLINE, flow);
+			insert_box(ctx, LJPEG_box, BOX_INLINE, flow);
 			g->at_bol = 1;
 		}
 	}
@@ -642,7 +642,7 @@ generate_boxes(fz_context *ctx,
 	struct genstate *g)
 {
 	fz_css_match match;
-	fz_html_box *box, *last_top;
+	fz_html_box *LJPEG_box, *last_top;
 	const char *tag;
 	int display;
 
@@ -669,9 +669,9 @@ generate_boxes(fz_context *ctx,
 				}
 				else
 				{
-					box = new_box(ctx, g->pool, markup_dir);
-					fz_apply_css_style(ctx, g->set, &box->style, &match);
-					top = insert_break_box(ctx, box, top);
+					LJPEG_box = new_box(ctx, g->pool, markup_dir);
+					fz_apply_css_style(ctx, g->set, &LJPEG_box->style, &match);
+					top = insert_break_box(ctx, LJPEG_box, top);
 				}
 				g->at_bol = 1;
 			}
@@ -681,10 +681,10 @@ generate_boxes(fz_context *ctx,
 				const char *src = fz_xml_att(node, "src");
 				if (src)
 				{
-					box = new_box(ctx, g->pool, markup_dir);
-					fz_apply_css_style(ctx, g->set, &box->style, &match);
-					insert_inline_box(ctx, box, top, markup_dir, g);
-					generate_image(ctx, box, load_html_image(ctx, g->zip, g->base_uri, src), g);
+					LJPEG_box = new_box(ctx, g->pool, markup_dir);
+					fz_apply_css_style(ctx, g->set, &LJPEG_box->style, &match);
+					insert_inline_box(ctx, LJPEG_box, top, markup_dir, g);
+					generate_image(ctx, LJPEG_box, load_html_image(ctx, g->zip, g->base_uri, src), g);
 				}
 			}
 
@@ -699,20 +699,20 @@ generate_boxes(fz_context *ctx,
 					if (display == DIS_BLOCK)
 					{
 						fz_html_box *imgbox;
-						box = new_box(ctx, g->pool, markup_dir);
-						fz_apply_css_style(ctx, g->set, &box->style, &match);
-						top = insert_block_box(ctx, box, top);
+						LJPEG_box = new_box(ctx, g->pool, markup_dir);
+						fz_apply_css_style(ctx, g->set, &LJPEG_box->style, &match);
+						top = insert_block_box(ctx, LJPEG_box, top);
 						imgbox = new_box(ctx, g->pool, markup_dir);
 						fz_apply_css_style(ctx, g->set, &imgbox->style, &match);
-						insert_inline_box(ctx, imgbox, box, markup_dir, g);
+						insert_inline_box(ctx, imgbox, LJPEG_box, markup_dir, g);
 						generate_image(ctx, imgbox, fz_keep_image(ctx, img), g);
 					}
 					else if (display == DIS_INLINE)
 					{
-						box = new_box(ctx, g->pool, markup_dir);
-						fz_apply_css_style(ctx, g->set, &box->style, &match);
-						insert_inline_box(ctx, box, top, markup_dir, g);
-						generate_image(ctx, box, fz_keep_image(ctx, img), g);
+						LJPEG_box = new_box(ctx, g->pool, markup_dir);
+						fz_apply_css_style(ctx, g->set, &LJPEG_box->style, &match);
+						insert_inline_box(ctx, LJPEG_box, top, markup_dir, g);
+						generate_image(ctx, LJPEG_box, fz_keep_image(ctx, img), g);
 					}
 				}
 			}
@@ -740,37 +740,37 @@ generate_boxes(fz_context *ctx,
 				if (lang)
 					child_lang = fz_text_language_from_string(lang);
 
-				box = new_box(ctx, g->pool, child_dir);
-				fz_apply_css_style(ctx, g->set, &box->style, &match);
+				LJPEG_box = new_box(ctx, g->pool, child_dir);
+				fz_apply_css_style(ctx, g->set, &LJPEG_box->style, &match);
 
 				id = fz_xml_att(node, "id");
 				if (id)
-					box->id = fz_pool_strdup(ctx, g->pool, id);
+					LJPEG_box->id = fz_pool_strdup(ctx, g->pool, id);
 
 				if (display == DIS_BLOCK || display == DIS_INLINE_BLOCK)
 				{
-					top = insert_block_box(ctx, box, top);
+					top = insert_block_box(ctx, LJPEG_box, top);
 					if (g->is_fb2)
 					{
 						if (!strcmp(tag, "title") || !strcmp(tag, "subtitle"))
-							box->heading = fz_mini(section_depth, 6);
+							LJPEG_box->heading = fz_mini(section_depth, 6);
 					}
 					else
 					{
 						if (tag[0]=='h' && tag[1]>='1' && tag[1]<='6' && tag[2]==0)
-							box->heading = tag[1] - '0';
+							LJPEG_box->heading = tag[1] - '0';
 					}
 				}
 				else if (display == DIS_LIST_ITEM)
 				{
-					top = insert_block_box(ctx, box, top);
-					box->list_item = ++list_counter;
+					top = insert_block_box(ctx, LJPEG_box, top);
+					LJPEG_box->list_item = ++list_counter;
 				}
 				else if (display == DIS_INLINE)
 				{
-					insert_inline_box(ctx, box, top, child_dir, g);
+					insert_inline_box(ctx, LJPEG_box, top, child_dir, g);
 					if (id)
-						generate_anchor(ctx, box, g);
+						generate_anchor(ctx, LJPEG_box, g);
 					if (tag[0]=='a' && tag[1]==0)
 					{
 						if (g->is_fb2)
@@ -782,25 +782,25 @@ generate_boxes(fz_context *ctx,
 						else
 							href = fz_xml_att(node, g->is_fb2 ? "l:href" : "href");
 						if (href)
-							box->href = fz_pool_strdup(ctx, g->pool, href);
+							LJPEG_box->href = fz_pool_strdup(ctx, g->pool, href);
 					}
 				}
 				else if (display == DIS_TABLE)
 				{
-					top = insert_table_box(ctx, box, top);
+					top = insert_table_box(ctx, LJPEG_box, top);
 				}
 				else if (display == DIS_TABLE_ROW)
 				{
-					top = insert_table_row_box(ctx, box, top);
+					top = insert_table_row_box(ctx, LJPEG_box, top);
 				}
 				else if (display == DIS_TABLE_CELL)
 				{
-					top = insert_table_cell_box(ctx, box, top);
+					top = insert_table_cell_box(ctx, LJPEG_box, top);
 				}
 				else
 				{
 					fz_warn(ctx, "unknown box display type");
-					insert_box(ctx, box, BOX_BLOCK, top);
+					insert_box(ctx, LJPEG_box, BOX_BLOCK, top);
 				}
 
 				if (fz_xml_down(node))
@@ -813,14 +813,14 @@ generate_boxes(fz_context *ctx,
 						++child_section;
 					last_top = generate_boxes(ctx,
 						fz_xml_down(node),
-						box,
+						LJPEG_box,
 						&match,
 						child_counter,
 						child_section,
 						child_dir,
 						child_lang,
 						g);
-					if (last_top != box)
+					if (last_top != LJPEG_box)
 						top = last_top;
 				}
 			}
@@ -838,13 +838,13 @@ generate_boxes(fz_context *ctx,
 				if (top->type != BOX_INLINE)
 				{
 					/* Create anonymous inline box, with the same style as the top block box. */
-					box = new_box(ctx, g->pool, markup_dir);
-					insert_inline_box(ctx, box, top, markup_dir, g);
-					box->style = top->style;
+					LJPEG_box = new_box(ctx, g->pool, markup_dir);
+					insert_inline_box(ctx, LJPEG_box, top, markup_dir, g);
+					LJPEG_box->style = top->style;
 					/* Make sure not to recursively multiply font sizes. */
-					box->style.font_size.value = 1;
-					box->style.font_size.unit = N_SCALE;
-					generate_text(ctx, box, text, markup_lang, g);
+					LJPEG_box->style.font_size.value = 1;
+					LJPEG_box->style.font_size.unit = N_SCALE;
+					generate_text(ctx, LJPEG_box, text, markup_lang, g);
 				}
 				else
 				{
@@ -1132,24 +1132,24 @@ detect_flow_directionality(fz_context *ctx, fz_pool *pool, uni_buf *buffer, fz_b
 }
 
 static void
-detect_box_directionality(fz_context *ctx, fz_pool *pool, uni_buf *buffer, fz_html_box *box)
+detect_box_directionality(fz_context *ctx, fz_pool *pool, uni_buf *buffer, fz_html_box *LJPEG_box)
 {
-	while (box)
+	while (LJPEG_box)
 	{
-		if (box->flow_head)
-			box->markup_dir = detect_flow_directionality(ctx, pool, buffer, box->markup_dir, box->flow_head);
-		detect_box_directionality(ctx, pool, buffer, box->down);
-		box = box->next;
+		if (LJPEG_box->flow_head)
+			LJPEG_box->markup_dir = detect_flow_directionality(ctx, pool, buffer, LJPEG_box->markup_dir, LJPEG_box->flow_head);
+		detect_box_directionality(ctx, pool, buffer, LJPEG_box->down);
+		LJPEG_box = LJPEG_box->next;
 	}
 }
 
 static void
-detect_directionality(fz_context *ctx, fz_pool *pool, fz_html_box *box)
+detect_directionality(fz_context *ctx, fz_pool *pool, fz_html_box *LJPEG_box)
 {
 	uni_buf buffer = { NULL };
 
 	fz_try(ctx)
-		detect_box_directionality(ctx, pool, &buffer, box);
+		detect_box_directionality(ctx, pool, &buffer, LJPEG_box);
 	fz_always(ctx)
 		fz_free(ctx, buffer.data);
 	fz_catch(ctx)
@@ -1289,12 +1289,12 @@ fz_debug_html_flow(fz_context *ctx, fz_html_flow *flow, int level)
 	fz_html_box *sbox = NULL;
 	while (flow)
 	{
-		if (flow->box != sbox) {
+		if (flow->LJPEG_box != sbox) {
 			if (sbox) {
 				indent(level);
 				printf("}\n");
 			}
-			sbox = flow->box;
+			sbox = flow->LJPEG_box;
 			indent(level);
 			printf("span em=%g font=%s", sbox->em, fz_font_name(ctx, sbox->style.font));
 			if (fz_font_is_serif(ctx, sbox->style.font))
@@ -1340,12 +1340,12 @@ fz_debug_html_flow(fz_context *ctx, fz_html_flow *flow, int level)
 }
 
 static void
-fz_debug_html_box(fz_context *ctx, fz_html_box *box, int level)
+fz_debug_html_box(fz_context *ctx, fz_html_box *LJPEG_box, int level)
 {
-	while (box)
+	while (LJPEG_box)
 	{
 		indent(level);
-		switch (box->type) {
+		switch (LJPEG_box->type) {
 		case BOX_BLOCK: printf("block"); break;
 		case BOX_BREAK: printf("break"); break;
 		case BOX_FLOW: printf("flow"); break;
@@ -1355,45 +1355,45 @@ fz_debug_html_box(fz_context *ctx, fz_html_box *box, int level)
 		case BOX_TABLE_CELL: printf("table-cell"); break;
 		}
 
-		printf(" em=%g x=%g y=%g w=%g b=%g\n", box->em, box->x, box->y, box->w, box->b);
+		printf(" em=%g x=%g y=%g w=%g b=%g\n", LJPEG_box->em, LJPEG_box->x, LJPEG_box->y, LJPEG_box->w, LJPEG_box->b);
 
 		indent(level);
 		printf("{\n");
-		if (box->type == BOX_BLOCK) {
+		if (LJPEG_box->type == BOX_BLOCK) {
 			indent(level+1);
-			printf("margin=%g %g %g %g\n", box->margin[0], box->margin[1], box->margin[2], box->margin[3]);
+			printf("margin=%g %g %g %g\n", LJPEG_box->margin[0], LJPEG_box->margin[1], LJPEG_box->margin[2], LJPEG_box->margin[3]);
 		}
-		if (box->is_first_flow) {
+		if (LJPEG_box->is_first_flow) {
 			indent(level+1);
 			printf("is-first-flow\n");
 		}
-		if (box->list_item) {
+		if (LJPEG_box->list_item) {
 			indent(level+1);
-			printf("list=%d\n", box->list_item);
+			printf("list=%d\n", LJPEG_box->list_item);
 		}
-		if (box->id) {
+		if (LJPEG_box->id) {
 			indent(level+1);
-			printf("id=%s\n", box->id);
+			printf("id=%s\n", LJPEG_box->id);
 		}
-		if (box->href) {
+		if (LJPEG_box->href) {
 			indent(level+1);
-			printf("href=%s\n", box->href);
+			printf("href=%s\n", LJPEG_box->href);
 		}
 
-		if (box->down)
-			fz_debug_html_box(ctx, box->down, level + 1);
-		if (box->flow_head)
-			fz_debug_html_flow(ctx, box->flow_head, level + 1);
+		if (LJPEG_box->down)
+			fz_debug_html_box(ctx, LJPEG_box->down, level + 1);
+		if (LJPEG_box->flow_head)
+			fz_debug_html_flow(ctx, LJPEG_box->flow_head, level + 1);
 
 		indent(level);
 		printf("}\n");
 
-		box = box->next;
+		LJPEG_box = LJPEG_box->next;
 	}
 }
 
 void
-fz_debug_html(fz_context *ctx, fz_html_box *box)
+fz_debug_html(fz_context *ctx, fz_html_box *LJPEG_box)
 {
-	fz_debug_html_box(ctx, box, 0);
+	fz_debug_html_box(ctx, LJPEG_box, 0);
 }

@@ -77,7 +77,7 @@ triangle(fz_scale_filter *filter, float f)
 }
 
 static float
-box(fz_scale_filter *filter, float f)
+LJPEG_box(fz_scale_filter *filter, float f)
 {
 	if (f >= 0.5f)
 		return 0;
@@ -92,7 +92,7 @@ simple(fz_scale_filter *filter, float x)
 	return 1 + (2*x - 3)*x*x;
 }
 
-fz_scale_filter fz_scale_filter_box = { 1, box };
+fz_scale_filter fz_scale_filter_box = { 1, LJPEG_box };
 fz_scale_filter fz_scale_filter_triangle = { 1, triangle };
 fz_scale_filter fz_scale_filter_simple = { 1, simple };
 

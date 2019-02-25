@@ -89,31 +89,31 @@ static int find_closest_in_page(fz_stext_page *page, fz_point p)
 			continue;
 		for (line = block->u.t.first_line; line; line = line->next)
 		{
-			fz_rect box = line->bbox;
-			if (p.x >= box.x0 && p.x <= box.x1)
+			fz_rect LJPEG_box = line->bbox;
+			if (p.x >= LJPEG_box.x0 && p.x <= LJPEG_box.x1)
 			{
-				if (p.y < box.y0)
-					this_dist = dist2(box.y0 - p.y, 0);
-				else if (p.y > box.y1)
-					this_dist = dist2(p.y - box.y1, 0);
+				if (p.y < LJPEG_box.y0)
+					this_dist = dist2(LJPEG_box.y0 - p.y, 0);
+				else if (p.y > LJPEG_box.y1)
+					this_dist = dist2(p.y - LJPEG_box.y1, 0);
 				else
 					this_dist = 0;
 			}
-			else if (p.y >= box.y0 && p.y <= box.y1)
+			else if (p.y >= LJPEG_box.y0 && p.y <= LJPEG_box.y1)
 			{
-				if (p.x < box.x0)
-					this_dist = dist2(box.x0 - p.x, 0);
-				else if (p.x > box.x1)
-					this_dist = dist2(p.x - box.x1, 0);
+				if (p.x < LJPEG_box.x0)
+					this_dist = dist2(LJPEG_box.x0 - p.x, 0);
+				else if (p.x > LJPEG_box.x1)
+					this_dist = dist2(p.x - LJPEG_box.x1, 0);
 				else
 					this_dist = 0;
 			}
 			else
 			{
-				float dul = dist2(p.x - box.x0, p.y - box.y0);
-				float dur = dist2(p.x - box.x1, p.y - box.y0);
-				float dll = dist2(p.x - box.x0, p.y - box.y1);
-				float dlr = dist2(p.x - box.x1, p.y - box.y1);
+				float dul = dist2(p.x - LJPEG_box.x0, p.y - LJPEG_box.y0);
+				float dur = dist2(p.x - LJPEG_box.x1, p.y - LJPEG_box.y0);
+				float dll = dist2(p.x - LJPEG_box.x0, p.y - LJPEG_box.y1);
+				float dlr = dist2(p.x - LJPEG_box.x1, p.y - LJPEG_box.y1);
 				this_dist = fz_min(fz_min(dul, dur), fz_min(dll, dlr));
 			}
 			if (this_dist < closest_dist)
@@ -252,7 +252,7 @@ fz_snap_selection(fz_context *ctx, fz_stext_page *page, fz_point *a, fz_point *b
 struct highlight
 {
 	int len, cap;
-	fz_quad *box;
+	fz_quad *LJPEG_box;
 	float hfuzz, vfuzz;
 };
 
@@ -264,7 +264,7 @@ static void on_highlight_char(fz_context *ctx, void *arg, fz_stext_line *line, f
 
 	if (hits->len > 0)
 	{
-		fz_quad *end = &hits->box[hits->len-1];
+		fz_quad *end = &hits->LJPEG_box[hits->len-1];
 		if (hdist(&line->dir, &end->lr, &ch->quad.ll) < hfuzz
 			&& vdist(&line->dir, &end->lr, &ch->quad.ll) < vfuzz
 			&& hdist(&line->dir, &end->ur, &ch->quad.ul) < hfuzz
@@ -277,7 +277,7 @@ static void on_highlight_char(fz_context *ctx, void *arg, fz_stext_line *line, f
 	}
 
 	if (hits->len < hits->cap)
-		hits->box[hits->len++] = ch->quad;
+		hits->LJPEG_box[hits->len++] = ch->quad;
 }
 
 static void on_highlight_line(fz_context *ctx, void *arg, fz_stext_line *line)
@@ -295,7 +295,7 @@ fz_highlight_selection(fz_context *ctx, fz_stext_page *page, fz_point a, fz_poin
 
 	hits.len = 0;
 	hits.cap = max_quads;
-	hits.box = quads;
+	hits.LJPEG_box = quads;
 	hits.hfuzz = 0.5f;
 	hits.vfuzz = 0.1f;
 
@@ -441,7 +441,7 @@ fz_search_stext_page(fz_context *ctx, fz_stext_page *page, const char *needle, f
 
 	hits.len = 0;
 	hits.cap = max_quads;
-	hits.box = quads;
+	hits.LJPEG_box = quads;
 	hits.hfuzz = 0.5f;
 	hits.vfuzz = 0.1f;
 

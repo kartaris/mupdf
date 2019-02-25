@@ -14,26 +14,26 @@ static int is_internal_uri(const char *uri)
 	return 1;
 }
 
-static const char *box_href(fz_html_box *box)
+static const char *box_href(fz_html_box *LJPEG_box)
 {
-	while (box)
+	while (LJPEG_box)
 	{
-		const char *href = box->href;
+		const char *href = LJPEG_box->href;
 		if (href)
 			return href;
-		box = box->up;
+		LJPEG_box = LJPEG_box->up;
 	}
 	return NULL;
 }
 
-static int has_same_href(fz_html_box *box, const char *old_href)
+static int has_same_href(fz_html_box *LJPEG_box, const char *old_href)
 {
-	while (box)
+	while (LJPEG_box)
 	{
-		const char *href = box->href;
+		const char *href = LJPEG_box->href;
 		if (href)
 			return !strcmp(old_href, href);
-		box = box->up;
+		LJPEG_box = LJPEG_box->up;
 	}
 	return 0;
 }
@@ -50,7 +50,7 @@ static fz_link *load_link_flow(fz_context *ctx, fz_html_flow *flow, fz_link *hea
 
 	while (flow)
 	{
-		href = box_href(flow->box);
+		href = box_href(flow->LJPEG_box);
 		next = flow->next;
 		if (href && (int)(flow->y / page_h) == page)
 		{
@@ -59,7 +59,7 @@ static fz_link *load_link_flow(fz_context *ctx, fz_html_flow *flow, fz_link *hea
 			while (next &&
 					next->y == flow->y &&
 					next->h == flow->h &&
-					has_same_href(next->box, href))
+					has_same_href(next->LJPEG_box, href))
 			{
 				end = next->x + next->w;
 				next = next->next;
@@ -108,15 +108,15 @@ static fz_link *load_link_flow(fz_context *ctx, fz_html_flow *flow, fz_link *hea
 	return head;
 }
 
-static fz_link *load_link_box(fz_context *ctx, fz_html_box *box, fz_link *head, int page, float page_h, const char *dir, const char *file)
+static fz_link *load_link_box(fz_context *ctx, fz_html_box *LJPEG_box, fz_link *head, int page, float page_h, const char *dir, const char *file)
 {
-	while (box)
+	while (LJPEG_box)
 	{
-		if (box->flow_head)
-			head = load_link_flow(ctx, box->flow_head, head, page, page_h, dir, file);
-		if (box->down)
-			head = load_link_box(ctx, box->down, head, page, page_h, dir, file);
-		box = box->next;
+		if (LJPEG_box->flow_head)
+			head = load_link_flow(ctx, LJPEG_box->flow_head, head, page, page_h, dir, file);
+		if (LJPEG_box->down)
+			head = load_link_box(ctx, LJPEG_box->down, head, page, page_h, dir, file);
+		LJPEG_box = LJPEG_box->next;
 	}
 	return head;
 }
@@ -146,13 +146,13 @@ fz_load_html_links(fz_context *ctx, fz_html *html, int page, const char *file, v
 }
 
 static fz_html_flow *
-find_first_content(fz_html_box *box)
+find_first_content(fz_html_box *LJPEG_box)
 {
-	while (box)
+	while (LJPEG_box)
 	{
-		if (box->type == BOX_FLOW)
-			return box->flow_head;
-		box = box->down;
+		if (LJPEG_box->type == BOX_FLOW)
+			return LJPEG_box->flow_head;
+		LJPEG_box = LJPEG_box->down;
 	}
 	return NULL;
 }
@@ -162,7 +162,7 @@ find_flow_target(fz_html_flow *flow, const char *id)
 {
 	while (flow)
 	{
-		if (flow->box->id && !strcmp(id, flow->box->id))
+		if (flow->LJPEG_box->id && !strcmp(id, flow->LJPEG_box->id))
 			return flow->y;
 		flow = flow->next;
 	}
@@ -170,31 +170,31 @@ find_flow_target(fz_html_flow *flow, const char *id)
 }
 
 static float
-find_box_target(fz_html_box *box, const char *id)
+find_box_target(fz_html_box *LJPEG_box, const char *id)
 {
 	float y;
-	while (box)
+	while (LJPEG_box)
 	{
-		if (box->id && !strcmp(id, box->id))
+		if (LJPEG_box->id && !strcmp(id, LJPEG_box->id))
 		{
-			fz_html_flow *flow = find_first_content(box);
+			fz_html_flow *flow = find_first_content(LJPEG_box);
 			if (flow)
 				return flow->y;
-			return box->y;
+			return LJPEG_box->y;
 		}
-		if (box->type == BOX_FLOW)
+		if (LJPEG_box->type == BOX_FLOW)
 		{
-			y = find_flow_target(box->flow_head, id);
+			y = find_flow_target(LJPEG_box->flow_head, id);
 			if (y >= 0)
 				return y;
 		}
 		else
 		{
-			y = find_box_target(box->down, id);
+			y = find_box_target(LJPEG_box->down, id);
 			if (y >= 0)
 				return y;
 		}
-		box = box->next;
+		LJPEG_box = LJPEG_box->next;
 	}
 	return -1;
 }
@@ -218,27 +218,27 @@ make_flow_bookmark(fz_context *ctx, fz_html_flow *flow, float y)
 }
 
 static fz_html_flow *
-make_box_bookmark(fz_context *ctx, fz_html_box *box, float y)
+make_box_bookmark(fz_context *ctx, fz_html_box *LJPEG_box, float y)
 {
 	fz_html_flow *mark;
-	while (box)
+	while (LJPEG_box)
 	{
-		if (box->type == BOX_FLOW)
+		if (LJPEG_box->type == BOX_FLOW)
 		{
-			if (box->y >= y)
+			if (LJPEG_box->y >= y)
 			{
-				mark = make_flow_bookmark(ctx, box->flow_head, y);
+				mark = make_flow_bookmark(ctx, LJPEG_box->flow_head, y);
 				if (mark)
 					return mark;
 			}
 		}
 		else
 		{
-			mark = make_box_bookmark(ctx, box->down, y);
+			mark = make_box_bookmark(ctx, LJPEG_box->down, y);
 			if (mark)
 				return mark;
 		}
-		box = box->next;
+		LJPEG_box = LJPEG_box->next;
 	}
 	return NULL;
 }
@@ -262,21 +262,21 @@ lookup_flow_bookmark(fz_context *ctx, fz_html_flow *flow, fz_html_flow *mark)
 }
 
 static int
-lookup_box_bookmark(fz_context *ctx, fz_html_box *box, fz_html_flow *mark)
+lookup_box_bookmark(fz_context *ctx, fz_html_box *LJPEG_box, fz_html_flow *mark)
 {
-	while (box)
+	while (LJPEG_box)
 	{
-		if (box->type == BOX_FLOW)
+		if (LJPEG_box->type == BOX_FLOW)
 		{
-			if (lookup_flow_bookmark(ctx, box->flow_head, mark))
+			if (lookup_flow_bookmark(ctx, LJPEG_box->flow_head, mark))
 				return 1;
 		}
 		else
 		{
-			if (lookup_box_bookmark(ctx, box->down, mark))
+			if (lookup_box_bookmark(ctx, LJPEG_box->down, mark))
 				return 1;
 		}
-		box = box->next;
+		LJPEG_box = LJPEG_box->next;
 	}
 	return 0;
 }
@@ -324,32 +324,32 @@ cat_html_flow(fz_context *ctx, fz_buffer *cat, fz_html_flow *flow)
 }
 
 static void
-cat_html_box(fz_context *ctx, fz_buffer *cat, fz_html_box *box)
+cat_html_box(fz_context *ctx, fz_buffer *cat, fz_html_box *LJPEG_box)
 {
-	while (box)
+	while (LJPEG_box)
 	{
-		cat_html_flow(ctx, cat, box->flow_head);
-		cat_html_box(ctx, cat, box->down);
-		box = box->next;
+		cat_html_flow(ctx, cat, LJPEG_box->flow_head);
+		cat_html_box(ctx, cat, LJPEG_box->down);
+		LJPEG_box = LJPEG_box->next;
 	}
 }
 
 static const char *
-cat_html_text(fz_context *ctx, struct outline_parser *x, fz_html_box *box)
+cat_html_text(fz_context *ctx, struct outline_parser *x, fz_html_box *LJPEG_box)
 {
 	if (!x->cat)
 		x->cat = fz_new_buffer(ctx, 1024);
 	else
 		fz_clear_buffer(ctx, x->cat);
 
-	cat_html_flow(ctx, x->cat, box->flow_head);
-	cat_html_box(ctx, x->cat, box->down);
+	cat_html_flow(ctx, x->cat, LJPEG_box->flow_head);
+	cat_html_box(ctx, x->cat, LJPEG_box->down);
 
 	return fz_string_from_buffer(ctx, x->cat);
 }
 
 static void
-add_html_outline(fz_context *ctx, struct outline_parser *x, fz_html_box *box)
+add_html_outline(fz_context *ctx, struct outline_parser *x, fz_html_box *LJPEG_box)
 {
 	fz_outline *node;
 	char buf[100];
@@ -357,13 +357,13 @@ add_html_outline(fz_context *ctx, struct outline_parser *x, fz_html_box *box)
 	node = fz_new_outline(ctx);
 	fz_try(ctx)
 	{
-		node->title = fz_strdup(ctx, cat_html_text(ctx, x, box));
-		if (!box->id)
+		node->title = fz_strdup(ctx, cat_html_text(ctx, x, LJPEG_box));
+		if (!LJPEG_box->id)
 		{
 			fz_snprintf(buf, sizeof buf, "'%d", x->id++);
-			box->id = fz_pool_strdup(ctx, x->html->pool, buf);
+			LJPEG_box->id = fz_pool_strdup(ctx, x->html->pool, buf);
 		}
-		node->uri = fz_asprintf(ctx, "#%s", box->id);
+		node->uri = fz_asprintf(ctx, "#%s", LJPEG_box->id);
 		node->is_open = 1;
 	}
 	fz_catch(ctx)
@@ -372,19 +372,19 @@ add_html_outline(fz_context *ctx, struct outline_parser *x, fz_html_box *box)
 		fz_rethrow(ctx);
 	}
 
-	if (x->level[x->current] < box->heading && x->current < 5)
+	if (x->level[x->current] < LJPEG_box->heading && x->current < 5)
 	{
 		x->tail[x->current+1] = x->down[x->current];
 		x->current += 1;
 	}
 	else
 	{
-		while (x->current > 0 && x->level[x->current] > box->heading)
+		while (x->current > 0 && x->level[x->current] > LJPEG_box->heading)
 		{
 			x->current -= 1;
 		}
 	}
-	x->level[x->current] = box->heading;
+	x->level[x->current] = LJPEG_box->heading;
 
 	*(x->tail[x->current]) = node;
 	x->tail[x->current] = &node->next;
@@ -392,15 +392,15 @@ add_html_outline(fz_context *ctx, struct outline_parser *x, fz_html_box *box)
 }
 
 static void
-load_html_outline(fz_context *ctx, struct outline_parser *x, fz_html_box *box)
+load_html_outline(fz_context *ctx, struct outline_parser *x, fz_html_box *LJPEG_box)
 {
-	while (box)
+	while (LJPEG_box)
 	{
-		if (box->heading)
-			add_html_outline(ctx, x, box);
-		if (box->down)
-			load_html_outline(ctx, x, box->down);
-		box = box->next;
+		if (LJPEG_box->heading)
+			add_html_outline(ctx, x, LJPEG_box);
+		if (LJPEG_box->down)
+			load_html_outline(ctx, x, LJPEG_box->down);
+		LJPEG_box = LJPEG_box->next;
 	}
 }
 

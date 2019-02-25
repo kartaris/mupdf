@@ -241,14 +241,14 @@ static void measure_string(fz_context *ctx, fz_html_flow *node, hb_buffer_t *hb_
 	const char *s;
 	float em;
 
-	em = node->box->em;
+	em = node->LJPEG_box->em;
 	node->x = 0;
 	node->y = 0;
 	node->w = 0;
-	node->h = fz_from_css_number_scale(node->box->style.line_height, em);
+	node->h = fz_from_css_number_scale(node->LJPEG_box->style.line_height, em);
 
 	s = get_node_text(ctx, node);
-	init_string_walker(ctx, &walker, hb_buf, node->bidi_level & 1, node->box->style.font, node->script, node->markup_lang, s);
+	init_string_walker(ctx, &walker, hb_buf, node->bidi_level & 1, node->LJPEG_box->style.font, node->script, node->markup_lang, s);
 	while (walk_string(&walker))
 	{
 		int x = 0;
@@ -270,8 +270,8 @@ static float measure_line(fz_html_flow *node, fz_html_flow *end, float *baseline
 		}
 		else
 		{
-			float a = node->box->em * 0.8f;
-			float d = node->box->em * 0.2f;
+			float a = node->LJPEG_box->em * 0.8f;
+			float d = node->LJPEG_box->em * 0.2f;
 			if (a > max_a) max_a = a;
 			if (d > max_d) max_d = d;
 		}
@@ -283,10 +283,10 @@ static float measure_line(fz_html_flow *node, fz_html_flow *end, float *baseline
 	return h;
 }
 
-static void layout_line(fz_context *ctx, float indent, float page_w, float line_w, int align, fz_html_flow *start, fz_html_flow *end, fz_html_box *box, float baseline, float line_h)
+static void layout_line(fz_context *ctx, float indent, float page_w, float line_w, int align, fz_html_flow *start, fz_html_flow *end, fz_html_box *LJPEG_box, float baseline, float line_h)
 {
-	float x = box->x + indent;
-	float y = box->b;
+	float x = LJPEG_box->x + indent;
+	float y = LJPEG_box->b;
 	float slop = page_w - line_w;
 	float justify = 0;
 	float va;
@@ -383,25 +383,25 @@ static void layout_line(fz_context *ctx, float indent, float page_w, float line_
 		node->x = x;
 		x += w;
 
-		switch (node->box->style.vertical_align)
+		switch (node->LJPEG_box->style.vertical_align)
 		{
 		default:
 		case VA_BASELINE:
 			va = 0;
 			break;
 		case VA_SUB:
-			va = node->box->em * 0.2f;
+			va = node->LJPEG_box->em * 0.2f;
 			break;
 		case VA_SUPER:
-			va = node->box->em * -0.3f;
+			va = node->LJPEG_box->em * -0.3f;
 			break;
 		case VA_TOP:
 		case VA_TEXT_TOP:
-			va = -baseline + node->box->em * 0.8f;
+			va = -baseline + node->LJPEG_box->em * 0.8f;
 			break;
 		case VA_BOTTOM:
 		case VA_TEXT_BOTTOM:
-			va = -baseline + line_h - node->box->em * 0.2f;
+			va = -baseline + line_h - node->LJPEG_box->em * 0.2f;
 			break;
 		}
 
@@ -410,63 +410,63 @@ static void layout_line(fz_context *ctx, float indent, float page_w, float line_
 		else
 		{
 			node->y = y + baseline + va;
-			node->h = node->box->em;
+			node->h = node->LJPEG_box->em;
 		}
 	}
 
 	fz_free(ctx, reorder);
 }
 
-static void find_accumulated_margins(fz_context *ctx, fz_html_box *box, float *w, float *h)
+static void find_accumulated_margins(fz_context *ctx, fz_html_box *LJPEG_box, float *w, float *h)
 {
-	while (box)
+	while (LJPEG_box)
 	{
 		/* TODO: take into account collapsed margins */
-		*h += box->margin[T] + box->padding[T] + box->border[T];
-		*h += box->margin[B] + box->padding[B] + box->border[B];
-		*w += box->margin[L] + box->padding[L] + box->border[L];
-		*w += box->margin[R] + box->padding[R] + box->border[R];
-		box = box->up;
+		*h += LJPEG_box->margin[T] + LJPEG_box->padding[T] + LJPEG_box->border[T];
+		*h += LJPEG_box->margin[B] + LJPEG_box->padding[B] + LJPEG_box->border[B];
+		*w += LJPEG_box->margin[L] + LJPEG_box->padding[L] + LJPEG_box->border[L];
+		*w += LJPEG_box->margin[R] + LJPEG_box->padding[R] + LJPEG_box->border[R];
+		LJPEG_box = LJPEG_box->up;
 	}
 }
 
-static void flush_line(fz_context *ctx, fz_html_box *box, float page_h, float page_w, float line_w, int align, float indent, fz_html_flow *a, fz_html_flow *b)
+static void flush_line(fz_context *ctx, fz_html_box *LJPEG_box, float page_h, float page_w, float line_w, int align, float indent, fz_html_flow *a, fz_html_flow *b)
 {
 	float avail, line_h, baseline;
 	line_h = measure_line(a, b, &baseline);
 	if (page_h > 0)
 	{
-		avail = page_h - fmodf(box->b, page_h);
+		avail = page_h - fmodf(LJPEG_box->b, page_h);
 		if (line_h > avail)
-			box->b += avail;
+			LJPEG_box->b += avail;
 	}
-	layout_line(ctx, indent, page_w, line_w, align, a, b, box, baseline, line_h);
-	box->b += line_h;
+	layout_line(ctx, indent, page_w, line_w, align, a, b, LJPEG_box, baseline, line_h);
+	LJPEG_box->b += line_h;
 }
 
-static void layout_flow_inline(fz_context *ctx, fz_html_box *box, fz_html_box *top)
+static void layout_flow_inline(fz_context *ctx, fz_html_box *LJPEG_box, fz_html_box *top)
 {
-	while (box)
+	while (LJPEG_box)
 	{
-		box->y = top->y;
-		box->em = fz_from_css_number(box->style.font_size, top->em, top->em, top->em);
-		if (box->down)
-			layout_flow_inline(ctx, box->down, box);
-		box = box->next;
+		LJPEG_box->y = top->y;
+		LJPEG_box->em = fz_from_css_number(LJPEG_box->style.font_size, top->em, top->em, top->em);
+		if (LJPEG_box->down)
+			layout_flow_inline(ctx, LJPEG_box->down, LJPEG_box);
+		LJPEG_box = LJPEG_box->next;
 	}
 }
 
-static void layout_flow(fz_context *ctx, fz_html_box *box, fz_html_box *top, float page_h, hb_buffer_t *hb_buf)
+static void layout_flow(fz_context *ctx, fz_html_box *LJPEG_box, fz_html_box *top, float page_h, hb_buffer_t *hb_buf)
 {
 	fz_html_flow *node, *line, *candidate;
 	float line_w, candidate_w, indent, break_w, nonbreak_w;
 	int line_align, align;
 
-	float em = box->em = fz_from_css_number(box->style.font_size, top->em, top->em, top->em);
-	indent = box->is_first_flow ? fz_from_css_number(top->style.text_indent, em, top->w, 0) : 0;
+	float em = LJPEG_box->em = fz_from_css_number(LJPEG_box->style.font_size, top->em, top->em, top->em);
+	indent = LJPEG_box->is_first_flow ? fz_from_css_number(top->style.text_indent, em, top->w, 0) : 0;
 	align = top->style.text_align;
 
-	if (box->markup_dir == FZ_BIDI_RTL)
+	if (LJPEG_box->markup_dir == FZ_BIDI_RTL)
 	{
 		if (align == TA_LEFT)
 			align = TA_RIGHT;
@@ -474,24 +474,24 @@ static void layout_flow(fz_context *ctx, fz_html_box *box, fz_html_box *top, flo
 			align = TA_LEFT;
 	}
 
-	box->x = top->x;
-	box->y = top->b;
-	box->w = top->w;
-	box->b = box->y;
+	LJPEG_box->x = top->x;
+	LJPEG_box->y = top->b;
+	LJPEG_box->w = top->w;
+	LJPEG_box->b = LJPEG_box->y;
 
-	if (!box->flow_head)
+	if (!LJPEG_box->flow_head)
 		return;
 
-	if (box->down)
-		layout_flow_inline(ctx, box->down, box);
+	if (LJPEG_box->down)
+		layout_flow_inline(ctx, LJPEG_box->down, LJPEG_box);
 
-	for (node = box->flow_head; node; node = node->next)
+	for (node = LJPEG_box->flow_head; node; node = node->next)
 	{
 		node->breaks_line = 0; /* reset line breaks from previous layout */
 		if (node->type == FLOW_IMAGE)
 		{
 			float w = 0, h = 0;
-			find_accumulated_margins(ctx, box, &w, &h);
+			find_accumulated_margins(ctx, LJPEG_box, &w, &h);
 			measure_image(ctx, node, top->w - w, page_h - h);
 		}
 		else
@@ -500,7 +500,7 @@ static void layout_flow(fz_context *ctx, fz_html_box *box, fz_html_box *top, flo
 		}
 	}
 
-	node = box->flow_head;
+	node = LJPEG_box->flow_head;
 
 	candidate = NULL;
 	candidate_w = 0;
@@ -530,7 +530,7 @@ static void layout_flow(fz_context *ctx, fz_html_box *box, fz_html_box *top, flo
 
 			/* If the broken node fits, remember it. */
 			/* Also remember it if we have no other candidate and need to break in desperation. */
-			if (line_w + break_w <= box->w || !candidate)
+			if (line_w + break_w <= LJPEG_box->w || !candidate)
 			{
 				candidate = node;
 				candidate_w = line_w + break_w;
@@ -546,14 +546,14 @@ static void layout_flow(fz_context *ctx, fz_html_box *box, fz_html_box *top, flo
 
 		/* The current node either does not fit or we saw a hard break. */
 		/* Break the line if we have a candidate break point. */
-		if (node->type == FLOW_BREAK || (line_w + nonbreak_w > box->w && candidate))
+		if (node->type == FLOW_BREAK || (line_w + nonbreak_w > LJPEG_box->w && candidate))
 		{
 			candidate->breaks_line = 1;
 			if (candidate->type == FLOW_BREAK)
 				line_align = (align == TA_JUSTIFY) ? TA_LEFT : align;
 			else
 				line_align = align;
-			flush_line(ctx, box, page_h, box->w, candidate_w, line_align, indent, line, candidate->next);
+			flush_line(ctx, LJPEG_box, page_h, LJPEG_box->w, candidate_w, line_align, indent, line, candidate->next);
 
 			line = candidate->next;
 			node = candidate->next;
@@ -572,7 +572,7 @@ static void layout_flow(fz_context *ctx, fz_html_box *box, fz_html_box *top, flo
 	if (line)
 	{
 		line_align = (align == TA_JUSTIFY) ? TA_LEFT : align;
-		flush_line(ctx, box, page_h, box->w, line_w, line_align, indent, line, NULL);
+		flush_line(ctx, LJPEG_box, page_h, LJPEG_box->w, line_w, line_align, indent, line, NULL);
 	}
 }
 
@@ -597,20 +597,20 @@ static int layout_block_page_break(fz_context *ctx, float *yp, float page_h, flo
 	return 0;
 }
 
-static float layout_block(fz_context *ctx, fz_html_box *box, float em, float top_x, float *top_b, float top_w,
+static float layout_block(fz_context *ctx, fz_html_box *LJPEG_box, float em, float top_x, float *top_b, float top_w,
 		float page_h, float vertical, hb_buffer_t *hb_buf);
 
-static void layout_table(fz_context *ctx, fz_html_box *box, fz_html_box *top, float page_h, hb_buffer_t *hb_buf)
+static void layout_table(fz_context *ctx, fz_html_box *LJPEG_box, fz_html_box *top, float page_h, hb_buffer_t *hb_buf)
 {
 	fz_html_box *row, *cell, *child;
 	int col, ncol = 0;
 
-	box->em = fz_from_css_number(box->style.font_size, top->em, top->em, top->em);
-	box->x = top->x;
-	box->w = fz_from_css_number(box->style.width, box->em, top->w, top->w);
-	box->y = box->b = top->b;
+	LJPEG_box->em = fz_from_css_number(LJPEG_box->style.font_size, top->em, top->em, top->em);
+	LJPEG_box->x = top->x;
+	LJPEG_box->w = fz_from_css_number(LJPEG_box->style.width, LJPEG_box->em, top->w, top->w);
+	LJPEG_box->y = LJPEG_box->b = top->b;
 
-	for (row = box->down; row; row = row->next)
+	for (row = LJPEG_box->down; row; row = row->next)
 	{
 		col = 0;
 		for (cell = row->down; cell; cell = cell->next)
@@ -619,14 +619,14 @@ static void layout_table(fz_context *ctx, fz_html_box *box, fz_html_box *top, fl
 			ncol = col;
 	}
 
-	for (row = box->down; row; row = row->next)
+	for (row = LJPEG_box->down; row; row = row->next)
 	{
 		col = 0;
 
-		row->em = fz_from_css_number(row->style.font_size, box->em, box->em, box->em);
-		row->x = box->x;
-		row->w = box->w;
-		row->y = row->b = box->b;
+		row->em = fz_from_css_number(row->style.font_size, LJPEG_box->em, LJPEG_box->em, LJPEG_box->em);
+		row->x = LJPEG_box->x;
+		row->w = LJPEG_box->w;
+		row->y = row->b = LJPEG_box->b;
 
 		for (cell = row->down; cell; cell = cell->next)
 		{
@@ -652,23 +652,23 @@ static void layout_table(fz_context *ctx, fz_html_box *box, fz_html_box *top, fl
 			++col;
 		}
 
-		box->b = row->b;
+		LJPEG_box->b = row->b;
 	}
 }
 
-static float layout_block(fz_context *ctx, fz_html_box *box, float em, float top_x, float *top_b, float top_w,
+static float layout_block(fz_context *ctx, fz_html_box *LJPEG_box, float em, float top_x, float *top_b, float top_w,
 		float page_h, float vertical, hb_buffer_t *hb_buf)
 {
 	fz_html_box *child;
 	float auto_width;
 	int first;
 
-	fz_css_style *style = &box->style;
-	float *margin = box->margin;
-	float *border = box->border;
-	float *padding = box->padding;
+	fz_css_style *style = &LJPEG_box->style;
+	float *margin = LJPEG_box->margin;
+	float *border = LJPEG_box->border;
+	float *padding = LJPEG_box->padding;
 
-	em = box->em = fz_from_css_number(style->font_size, em, em, em);
+	em = LJPEG_box->em = fz_from_css_number(style->font_size, em, em, em);
 
 	margin[0] = fz_from_css_number(style->margin[0], em, top_w, 0);
 	margin[1] = fz_from_css_number(style->margin[1], em, top_w, 0);
@@ -690,9 +690,9 @@ static float layout_block(fz_context *ctx, fz_html_box *box, float em, float top
 	if (layout_block_page_break(ctx, top_b, page_h, vertical, style->page_break_before))
 		vertical = 0;
 
-	box->x = top_x + margin[L] + border[L] + padding[L];
+	LJPEG_box->x = top_x + margin[L] + border[L] + padding[L];
 	auto_width = top_w - (margin[L] + margin[R] + border[L] + border[R] + padding[L] + padding[R]);
-	box->w = fz_from_css_number(style->width, em, auto_width, auto_width);
+	LJPEG_box->w = fz_from_css_number(style->width, em, auto_width, auto_width);
 
 	if (margin[T] > vertical)
 		margin[T] -= vertical;
@@ -704,42 +704,42 @@ static float layout_block(fz_context *ctx, fz_html_box *box, float em, float top
 	else
 		vertical = 0;
 
-	box->y = box->b = *top_b + margin[T] + border[T] + padding[T];
+	LJPEG_box->y = LJPEG_box->b = *top_b + margin[T] + border[T] + padding[T];
 
 	first = 1;
-	for (child = box->down; child; child = child->next)
+	for (child = LJPEG_box->down; child; child = child->next)
 	{
 		if (child->type == BOX_BLOCK)
 		{
-			vertical = layout_block(ctx, child, em, box->x, &box->b, box->w, page_h, vertical, hb_buf);
+			vertical = layout_block(ctx, child, em, LJPEG_box->x, &LJPEG_box->b, LJPEG_box->w, page_h, vertical, hb_buf);
 			if (first)
 			{
 				/* move collapsed parent/child top margins to parent */
 				margin[T] += child->margin[T];
-				box->y += child->margin[T];
+				LJPEG_box->y += child->margin[T];
 				child->margin[T] = 0;
 				first = 0;
 			}
-			box->b = child->b + child->padding[B] + child->border[B] + child->margin[B];
+			LJPEG_box->b = child->b + child->padding[B] + child->border[B] + child->margin[B];
 		}
 		else if (child->type == BOX_TABLE)
 		{
-			layout_table(ctx, child, box, page_h, hb_buf);
+			layout_table(ctx, child, LJPEG_box, page_h, hb_buf);
 			first = 0;
-			box->b = child->b + child->padding[B] + child->border[B] + child->margin[B];
+			LJPEG_box->b = child->b + child->padding[B] + child->border[B] + child->margin[B];
 		}
 		else if (child->type == BOX_BREAK)
 		{
-			box->b += fz_from_css_number_scale(style->line_height, em);
+			LJPEG_box->b += fz_from_css_number_scale(style->line_height, em);
 			vertical = 0;
 			first = 0;
 		}
 		else if (child->type == BOX_FLOW)
 		{
-			layout_flow(ctx, child, box, page_h, hb_buf);
+			layout_flow(ctx, child, LJPEG_box, page_h, hb_buf);
 			if (child->b > child->y)
 			{
-				box->b = child->b;
+				LJPEG_box->b = child->b;
 				vertical = 0;
 				first = 0;
 			}
@@ -747,19 +747,19 @@ static float layout_block(fz_context *ctx, fz_html_box *box, float em, float top
 	}
 
 	/* reserve space for the list mark */
-	if (box->list_item && box->y == box->b)
+	if (LJPEG_box->list_item && LJPEG_box->y == LJPEG_box->b)
 	{
-		box->b += fz_from_css_number_scale(style->line_height, em);
+		LJPEG_box->b += fz_from_css_number_scale(style->line_height, em);
 		vertical = 0;
 	}
 
-	if (layout_block_page_break(ctx, &box->b, page_h, 0, style->page_break_after))
+	if (layout_block_page_break(ctx, &LJPEG_box->b, page_h, 0, style->page_break_after))
 	{
 		vertical = 0;
 		margin[B] = 0;
 	}
 
-	if (box->y == box->b)
+	if (LJPEG_box->y == LJPEG_box->b)
 	{
 		if (margin[B] > vertical)
 			margin[B] -= vertical;
@@ -768,7 +768,7 @@ static float layout_block(fz_context *ctx, fz_html_box *box, float em, float top
 	}
 	else
 	{
-		box->b -= vertical;
+		LJPEG_box->b -= vertical;
 		vertical = fz_max(margin[B], vertical);
 		margin[B] = vertical;
 	}
@@ -779,7 +779,7 @@ static float layout_block(fz_context *ctx, fz_html_box *box, float em, float top
 void
 fz_layout_html(fz_context *ctx, fz_html *html, float w, float h, float em)
 {
-	fz_html_box *box = html->root;
+	fz_html_box *LJPEG_box = html->root;
 	hb_buffer_t *hb_buf = NULL;
 	int unlocked = 0;
 
@@ -814,14 +814,14 @@ fz_layout_html(fz_context *ctx, fz_html *html, float w, float h, float em)
 		unlocked = 1;
 		fz_hb_unlock(ctx);
 
-		box->em = em;
-		box->w = html->page_w;
-		box->b = box->y;
+		LJPEG_box->em = em;
+		LJPEG_box->w = html->page_w;
+		LJPEG_box->b = LJPEG_box->y;
 
-		if (box->down)
+		if (LJPEG_box->down)
 		{
-			layout_block(ctx, box->down, box->em, box->x, &box->b, box->w, html->page_h, 0, hb_buf);
-			box->b = box->down->b;
+			layout_block(ctx, LJPEG_box->down, LJPEG_box->em, LJPEG_box->x, &LJPEG_box->b, LJPEG_box->w, html->page_h, 0, hb_buf);
+			LJPEG_box->b = LJPEG_box->down->b;
 		}
 	}
 	fz_always(ctx)
@@ -837,7 +837,7 @@ fz_layout_html(fz_context *ctx, fz_html *html, float w, float h, float em)
 	}
 
 	if (h == 0)
-		html->page_h = box->b;
+		html->page_h = LJPEG_box->b;
 
 #ifndef NDEBUG
 	if (fz_atoi(getenv("FZ_DEBUG_HTML")))
@@ -845,7 +845,7 @@ fz_layout_html(fz_context *ctx, fz_html *html, float w, float h, float em)
 #endif
 }
 
-static void draw_flow_box(fz_context *ctx, fz_html_box *box, float page_top, float page_bot, fz_device *dev, fz_matrix ctm, hb_buffer_t *hb_buf)
+static void draw_flow_box(fz_context *ctx, fz_html_box *LJPEG_box, float page_top, float page_bot, fz_device *dev, fz_matrix ctm, hb_buffer_t *hb_buf)
 {
 	fz_html_flow *node;
 	fz_text *text;
@@ -860,9 +860,9 @@ static void draw_flow_box(fz_context *ctx, fz_html_box *box, float page_top, flo
 	prev_color[1] = 0;
 	prev_color[2] = 0;
 
-	for (node = box->flow_head; node; node = node->next)
+	for (node = LJPEG_box->flow_head; node; node = node->next)
 	{
-		fz_css_style *style = &node->box->style;
+		fz_css_style *style = &node->LJPEG_box->style;
 
 		if (node->type == FLOW_IMAGE)
 		{
@@ -916,10 +916,10 @@ static void draw_flow_box(fz_context *ctx, fz_html_box *box, float page_top, flo
 				x = node->x;
 			y = node->y;
 
-			trm.a = node->box->em;
+			trm.a = node->LJPEG_box->em;
 			trm.b = 0;
 			trm.c = 0;
-			trm.d = -node->box->em;
+			trm.d = -node->LJPEG_box->em;
 			trm.e = x;
 			trm.f = y - page_top;
 
@@ -927,7 +927,7 @@ static void draw_flow_box(fz_context *ctx, fz_html_box *box, float page_top, flo
 			init_string_walker(ctx, &walker, hb_buf, node->bidi_level & 1, style->font, node->script, node->markup_lang, s);
 			while (walk_string(&walker))
 			{
-				float node_scale = node->box->em / walker.scale;
+				float node_scale = node->LJPEG_box->em / walker.scale;
 				unsigned int i;
 				int c, k, n;
 
@@ -959,7 +959,7 @@ static void draw_flow_box(fz_context *ctx, fz_html_box *box, float page_top, flo
 							trm.f = y - walker.glyph_pos[i].y_offset * node_scale - page_top;
 							fz_show_glyph(ctx, text, walker.font, trm,
 									walker.glyph_info[i].codepoint, c,
-									0, node->bidi_level, box->markup_dir, node->markup_lang);
+									0, node->bidi_level, LJPEG_box->markup_dir, node->markup_lang);
 							c = -1; /* for subsequent glyphs in x-to-many mappings */
 						}
 					}
@@ -969,7 +969,7 @@ static void draw_flow_box(fz_context *ctx, fz_html_box *box, float page_top, flo
 					{
 						fz_show_glyph(ctx, text, walker.font, trm,
 								-1, c,
-								0, node->bidi_level, box->markup_dir, node->markup_lang);
+								0, node->bidi_level, LJPEG_box->markup_dir, node->markup_lang);
 					}
 
 					k += n;
@@ -1108,19 +1108,19 @@ static void format_list_number(fz_context *ctx, int type, int x, char *buf, int 
 	}
 }
 
-static fz_html_flow *find_list_mark_anchor(fz_context *ctx, fz_html_box *box)
+static fz_html_flow *find_list_mark_anchor(fz_context *ctx, fz_html_box *LJPEG_box)
 {
 	/* find first flow node in <li> tag */
-	while (box)
+	while (LJPEG_box)
 	{
-		if (box->type == BOX_FLOW)
-			return box->flow_head;
-		box = box->down;
+		if (LJPEG_box->type == BOX_FLOW)
+			return LJPEG_box->flow_head;
+		LJPEG_box = LJPEG_box->down;
 	}
 	return NULL;
 }
 
-static void draw_list_mark(fz_context *ctx, fz_html_box *box, float page_top, float page_bot, fz_device *dev, fz_matrix ctm, int n)
+static void draw_list_mark(fz_context *ctx, fz_html_box *LJPEG_box, float page_top, float page_bot, fz_device *dev, fz_matrix ctm, int n)
 {
 	fz_font *font;
 	fz_text *text;
@@ -1132,35 +1132,35 @@ static void draw_list_mark(fz_context *ctx, fz_html_box *box, float page_top, fl
 	char buf[40];
 	int c, g;
 
-	trm = fz_scale(box->em, -box->em);
+	trm = fz_scale(LJPEG_box->em, -LJPEG_box->em);
 
-	line = find_list_mark_anchor(ctx, box);
+	line = find_list_mark_anchor(ctx, LJPEG_box);
 	if (line)
 	{
 		y = line->y;
 	}
 	else
 	{
-		float h = fz_from_css_number_scale(box->style.line_height, box->em);
-		float a = box->em * 0.8f;
-		float d = box->em * 0.2f;
+		float h = fz_from_css_number_scale(LJPEG_box->style.line_height, LJPEG_box->em);
+		float a = LJPEG_box->em * 0.8f;
+		float d = LJPEG_box->em * 0.2f;
 		if (a + d > h)
 			h = a + d;
-		y = box->y + a + (h - a - d) / 2;
+		y = LJPEG_box->y + a + (h - a - d) / 2;
 	}
 
 	if (y > page_bot || y < page_top)
 		return;
 
-	format_list_number(ctx, box->style.list_style_type, n, buf, sizeof buf);
+	format_list_number(ctx, LJPEG_box->style.list_style_type, n, buf, sizeof buf);
 
 	s = buf;
 	w = 0;
 	while (*s)
 	{
 		s += fz_chartorune(&c, s);
-		g = fz_encode_character_with_fallback(ctx, box->style.font, c, UCDN_SCRIPT_LATIN, FZ_LANG_UNSET, &font);
-		w += fz_advance_glyph(ctx, font, g, 0) * box->em;
+		g = fz_encode_character_with_fallback(ctx, LJPEG_box->style.font, c, UCDN_SCRIPT_LATIN, FZ_LANG_UNSET, &font);
+		w += fz_advance_glyph(ctx, font, g, 0) * LJPEG_box->em;
 	}
 
 	text = fz_new_text(ctx);
@@ -1168,19 +1168,19 @@ static void draw_list_mark(fz_context *ctx, fz_html_box *box, float page_top, fl
 	fz_try(ctx)
 	{
 		s = buf;
-		trm.e = box->x - w;
+		trm.e = LJPEG_box->x - w;
 		trm.f = y - page_top;
 		while (*s)
 		{
 			s += fz_chartorune(&c, s);
-			g = fz_encode_character_with_fallback(ctx, box->style.font, c, UCDN_SCRIPT_LATIN, FZ_LANG_UNSET, &font);
+			g = fz_encode_character_with_fallback(ctx, LJPEG_box->style.font, c, UCDN_SCRIPT_LATIN, FZ_LANG_UNSET, &font);
 			fz_show_glyph(ctx, text, font, trm, g, c, 0, 0, FZ_BIDI_NEUTRAL, FZ_LANG_UNSET);
-			trm.e += fz_advance_glyph(ctx, font, g, 0) * box->em;
+			trm.e += fz_advance_glyph(ctx, font, g, 0) * LJPEG_box->em;
 		}
 
-		color[0] = box->style.color.r / 255.0f;
-		color[1] = box->style.color.g / 255.0f;
-		color[2] = box->style.color.b / 255.0f;
+		color[0] = LJPEG_box->style.color.r / 255.0f;
+		color[1] = LJPEG_box->style.color.g / 255.0f;
+		color[2] = LJPEG_box->style.color.b / 255.0f;
 
 		fz_fill_text(ctx, dev, text, ctm, fz_device_rgb(ctx), color, 1, NULL);
 	}
@@ -1190,47 +1190,47 @@ static void draw_list_mark(fz_context *ctx, fz_html_box *box, float page_top, fl
 		fz_rethrow(ctx);
 }
 
-static void draw_block_box(fz_context *ctx, fz_html_box *box, float page_top, float page_bot, fz_device *dev, fz_matrix ctm, hb_buffer_t *hb_buf)
+static void draw_block_box(fz_context *ctx, fz_html_box *LJPEG_box, float page_top, float page_bot, fz_device *dev, fz_matrix ctm, hb_buffer_t *hb_buf)
 {
 	float x0, y0, x1, y1;
 
-	float *border = box->border;
-	float *padding = box->padding;
+	float *border = LJPEG_box->border;
+	float *padding = LJPEG_box->padding;
 
-	x0 = box->x - padding[L];
-	y0 = box->y - padding[T];
-	x1 = box->x + box->w + padding[R];
-	y1 = box->b + padding[B];
+	x0 = LJPEG_box->x - padding[L];
+	y0 = LJPEG_box->y - padding[T];
+	x1 = LJPEG_box->x + LJPEG_box->w + padding[R];
+	y1 = LJPEG_box->b + padding[B];
 
 	if (y0 > page_bot || y1 < page_top)
 		return;
 
-	if (box->style.visibility == V_VISIBLE)
+	if (LJPEG_box->style.visibility == V_VISIBLE)
 	{
-		draw_rect(ctx, dev, ctm, page_top, box->style.background_color, x0, y0, x1, y1);
+		draw_rect(ctx, dev, ctm, page_top, LJPEG_box->style.background_color, x0, y0, x1, y1);
 
 		if (border[T] > 0)
-			draw_rect(ctx, dev, ctm, page_top, box->style.border_color[T], x0 - border[L], y0 - border[T], x1 + border[R], y0);
+			draw_rect(ctx, dev, ctm, page_top, LJPEG_box->style.border_color[T], x0 - border[L], y0 - border[T], x1 + border[R], y0);
 		if (border[B] > 0)
-			draw_rect(ctx, dev, ctm, page_top, box->style.border_color[B], x0 - border[L], y1, x1 + border[R], y1 + border[B]);
+			draw_rect(ctx, dev, ctm, page_top, LJPEG_box->style.border_color[B], x0 - border[L], y1, x1 + border[R], y1 + border[B]);
 		if (border[L] > 0)
-			draw_rect(ctx, dev, ctm, page_top, box->style.border_color[L], x0 - border[L], y0 - border[T], x0, y1 + border[B]);
+			draw_rect(ctx, dev, ctm, page_top, LJPEG_box->style.border_color[L], x0 - border[L], y0 - border[T], x0, y1 + border[B]);
 		if (border[R] > 0)
-			draw_rect(ctx, dev, ctm, page_top, box->style.border_color[R], x1, y0 - border[T], x1 + border[R], y1 + border[B]);
+			draw_rect(ctx, dev, ctm, page_top, LJPEG_box->style.border_color[R], x1, y0 - border[T], x1 + border[R], y1 + border[B]);
 
-		if (box->list_item)
-			draw_list_mark(ctx, box, page_top, page_bot, dev, ctm, box->list_item);
+		if (LJPEG_box->list_item)
+			draw_list_mark(ctx, LJPEG_box, page_top, page_bot, dev, ctm, LJPEG_box->list_item);
 	}
 
-	for (box = box->down; box; box = box->next)
+	for (LJPEG_box = LJPEG_box->down; LJPEG_box; LJPEG_box = LJPEG_box->next)
 	{
-		switch (box->type)
+		switch (LJPEG_box->type)
 		{
 		case BOX_TABLE:
 		case BOX_TABLE_ROW:
 		case BOX_TABLE_CELL:
-		case BOX_BLOCK: draw_block_box(ctx, box, page_top, page_bot, dev, ctm, hb_buf); break;
-		case BOX_FLOW: draw_flow_box(ctx, box, page_top, page_bot, dev, ctm, hb_buf); break;
+		case BOX_BLOCK: draw_block_box(ctx, LJPEG_box, page_top, page_bot, dev, ctm, hb_buf); break;
+		case BOX_FLOW: draw_flow_box(ctx, LJPEG_box, page_top, page_bot, dev, ctm, hb_buf); break;
 		}
 	}
 }
@@ -1239,7 +1239,7 @@ void
 fz_draw_html(fz_context *ctx, fz_device *dev, fz_matrix ctm, fz_html *html, int page)
 {
 	hb_buffer_t *hb_buf = NULL;
-	fz_html_box *box;
+	fz_html_box *LJPEG_box;
 	int unlocked = 0;
 	float page_top = page * html->page_h;
 	float page_bot = (page + 1) * html->page_h;
@@ -1261,8 +1261,8 @@ fz_draw_html(fz_context *ctx, fz_device *dev, fz_matrix ctm, fz_html *html, int 
 		fz_hb_unlock(ctx);
 		unlocked = 1;
 
-		for (box = html->root->down; box; box = box->next)
-			draw_block_box(ctx, box, page_top, page_bot, dev, ctm, hb_buf);
+		for (LJPEG_box = html->root->down; LJPEG_box; LJPEG_box = LJPEG_box->next)
+			draw_block_box(ctx, LJPEG_box, page_top, page_bot, dev, ctm, hb_buf);
 	}
 	fz_always(ctx)
 	{
