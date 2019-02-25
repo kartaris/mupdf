@@ -22,9 +22,9 @@ struct fz_dctd_s
 	int l2factor;
 	unsigned char *scanline;
 	unsigned char *rp, *wp;
-	struct jpeg_decompress_struct cinfo;
+	struct LJPEG_jpeg_decompress_struct cinfo;
 	struct jpeg_source_mgr srcmgr;
-	struct jpeg_error_mgr errmgr;
+	struct LJPEG_jpeg_error_mgr errmgr;
 	jmp_buf jb;
 	char msg[JMSG_LENGTH_MAX];
 
@@ -174,12 +174,12 @@ next_dctd(fz_context *ctx, fz_stream *stm, size_t max)
 		cinfo->src = NULL;
 		cinfo->client_data = state;
 		cinfo->err = &state->errmgr;
-		jpeg_std_error(cinfo->err);
+		LJPEG_jpeg_std_error(cinfo->err);
 		cinfo->err->error_exit = error_exit_dct;
 
 		fz_dct_mem_init(state);
 
-		jpeg_create_decompress(cinfo);
+		LJPEG_jpeg_create_decompress(cinfo);
 		state->init = 1;
 
 		/* Skip over any stray whitespace at the start of the stream */
@@ -199,7 +199,7 @@ next_dctd(fz_context *ctx, fz_stream *stm, size_t max)
 			state->curr_stm = state->jpegtables;
 			cinfo->src->next_input_byte = state->curr_stm->rp;
 			cinfo->src->bytes_in_buffer = state->curr_stm->wp - state->curr_stm->rp;
-			jpeg_read_header(cinfo, 0);
+			LJPEG_jpeg_read_header(cinfo, 0);
 			state->curr_stm->rp = state->curr_stm->wp - state->cinfo.src->bytes_in_buffer;
 			state->curr_stm = state->chain;
 		}
@@ -207,7 +207,7 @@ next_dctd(fz_context *ctx, fz_stream *stm, size_t max)
 		cinfo->src->next_input_byte = state->curr_stm->rp;
 		cinfo->src->bytes_in_buffer = state->curr_stm->wp - state->curr_stm->rp;
 
-		jpeg_read_header(cinfo, 1);
+		LJPEG_jpeg_read_header(cinfo, 1);
 
 		/* default value if ColorTransform is not set */
 		if (state->color_transform == -1)
@@ -241,7 +241,7 @@ next_dctd(fz_context *ctx, fz_stream *stm, size_t max)
 		cinfo->scale_num = 8/(1<<state->l2factor);
 		cinfo->scale_denom = 8;
 
-		jpeg_start_decompress(cinfo);
+		LJPEG_jpeg_start_decompress(cinfo);
 
 		state->stride = cinfo->output_width * cinfo->output_components;
 		state->scanline = fz_malloc(ctx, state->stride);
@@ -293,7 +293,7 @@ close_dctd(fz_context *ctx, void *state_)
 	}
 
 	/* We call jpeg_abort rather than the more usual
-	 * jpeg_finish_decompress here. This has the same effect,
+	 * LJPEG_jpeg_finish_decompress here. This has the same effect,
 	 * but doesn't spew warnings if we didn't read enough data etc.
 	 */
 	if (state->init)
@@ -303,7 +303,7 @@ skip:
 	if (state->cinfo.src)
 		state->curr_stm->rp = state->curr_stm->wp - state->cinfo.src->bytes_in_buffer;
 	if (state->init)
-		jpeg_destroy_decompress(&state->cinfo);
+		LJPEG_jpeg_destroy_decompress(&state->cinfo);
 
 	fz_dct_mem_term(state);
 

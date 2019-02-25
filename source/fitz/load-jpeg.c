@@ -35,7 +35,7 @@ fz_jpg_mem_free(LJPEG_j_common_ptr cinfo, void *object, size_t size)
 }
 
 static void
-fz_jpg_mem_init(fz_context *ctx, struct jpeg_decompress_struct *cinfo)
+fz_jpg_mem_init(fz_context *ctx, struct LJPEG_jpeg_decompress_struct *cinfo)
 {
 	jpeg_cust_mem_data *custmptr;
 
@@ -53,7 +53,7 @@ fz_jpg_mem_init(fz_context *ctx, struct jpeg_decompress_struct *cinfo)
 }
 
 static void
-fz_jpg_mem_term(struct jpeg_decompress_struct *cinfo)
+fz_jpg_mem_term(struct LJPEG_jpeg_decompress_struct *cinfo)
 {
 	if(cinfo->client_data)
 	{
@@ -298,8 +298,8 @@ static int extract_app13_resolution(jpeg_saved_marker_ptr marker, int *xres, int
 fz_pixmap *
 fz_load_jpeg(fz_context *ctx, const unsigned char *rbuf, size_t rlen)
 {
-	struct jpeg_decompress_struct cinfo;
-	struct jpeg_error_mgr err;
+	struct LJPEG_jpeg_decompress_struct cinfo;
+	struct LJPEG_jpeg_error_mgr err;
 	struct jpeg_source_mgr src;
 	unsigned char *row[1], *sp, *dp;
 	fz_colorspace *colorspace = NULL;
@@ -318,12 +318,12 @@ fz_load_jpeg(fz_context *ctx, const unsigned char *rbuf, size_t rlen)
 		cinfo.mem = NULL;
 		cinfo.global_state = 0;
 		cinfo.client_data = ctx;
-		cinfo.err = jpeg_std_error(&err);
+		cinfo.err = LJPEG_jpeg_std_error(&err);
 		err.error_exit = error_exit;
 
 		fz_jpg_mem_init(ctx, &cinfo);
 
-		jpeg_create_decompress(&cinfo);
+		LJPEG_jpeg_create_decompress(&cinfo);
 
 		cinfo.src = &src;
 		src.init_source = init_source;
@@ -337,9 +337,9 @@ fz_load_jpeg(fz_context *ctx, const unsigned char *rbuf, size_t rlen)
 		jpeg_save_markers(&cinfo, JPEG_APP0+1, 0xffff);
 		jpeg_save_markers(&cinfo, JPEG_APP0+13, 0xffff);
 
-		jpeg_read_header(&cinfo, 1);
+		LJPEG_jpeg_read_header(&cinfo, 1);
 
-		jpeg_start_decompress(&cinfo);
+		LJPEG_jpeg_start_decompress(&cinfo);
 
 		if (cinfo.output_components == 1)
 			colorspace = fz_keep_colorspace(ctx, fz_device_gray(ctx));
@@ -394,14 +394,14 @@ fz_load_jpeg(fz_context *ctx, const unsigned char *rbuf, size_t rlen)
 		row[0] = NULL;
 		fz_try(ctx)
 		{
-			/* Annoyingly, jpeg_finish_decompress can throw */
-			jpeg_finish_decompress(&cinfo);
+			/* Annoyingly, LJPEG_jpeg_finish_decompress can throw */
+			LJPEG_jpeg_finish_decompress(&cinfo);
 		}
 		fz_catch(ctx)
 		{
 			/* Ignore any errors here */
 		}
-		jpeg_destroy_decompress(&cinfo);
+		LJPEG_jpeg_destroy_decompress(&cinfo);
 		fz_jpg_mem_term(&cinfo);
 	}
 	fz_catch(ctx)
@@ -416,8 +416,8 @@ fz_load_jpeg(fz_context *ctx, const unsigned char *rbuf, size_t rlen)
 void
 fz_load_jpeg_info(fz_context *ctx, const unsigned char *rbuf, size_t rlen, int *xp, int *yp, int *xresp, int *yresp, fz_colorspace **cspacep)
 {
-	struct jpeg_decompress_struct cinfo;
-	struct jpeg_error_mgr err;
+	struct LJPEG_jpeg_decompress_struct cinfo;
+	struct LJPEG_jpeg_error_mgr err;
 	struct jpeg_source_mgr src;
 	fz_colorspace *icc = NULL;
 
@@ -428,12 +428,12 @@ fz_load_jpeg_info(fz_context *ctx, const unsigned char *rbuf, size_t rlen, int *
 		cinfo.mem = NULL;
 		cinfo.global_state = 0;
 		cinfo.client_data = ctx;
-		cinfo.err = jpeg_std_error(&err);
+		cinfo.err = LJPEG_jpeg_std_error(&err);
 		err.error_exit = error_exit;
 
 		fz_jpg_mem_init(ctx, &cinfo);
 
-		jpeg_create_decompress(&cinfo);
+		LJPEG_jpeg_create_decompress(&cinfo);
 
 		cinfo.src = &src;
 		src.init_source = init_source;
@@ -448,7 +448,7 @@ fz_load_jpeg_info(fz_context *ctx, const unsigned char *rbuf, size_t rlen, int *
 		jpeg_save_markers(&cinfo, JPEG_APP0+13, 0xffff);
 		jpeg_save_markers(&cinfo, JPEG_APP0+2, 0xffff);
 
-		jpeg_read_header(&cinfo, 1);
+		LJPEG_jpeg_read_header(&cinfo, 1);
 
 		*xp = cinfo.image_width;
 		*yp = cinfo.image_height;
@@ -488,7 +488,7 @@ fz_load_jpeg_info(fz_context *ctx, const unsigned char *rbuf, size_t rlen, int *
 	}
 	fz_always(ctx)
 	{
-		jpeg_destroy_decompress(&cinfo);
+		LJPEG_jpeg_destroy_decompress(&cinfo);
 		fz_jpg_mem_term(&cinfo);
 	}
 	fz_catch(ctx)
