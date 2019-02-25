@@ -90,7 +90,7 @@ fz_dct_mem_term(fz_dctd *state)
 static void error_exit_dct(LJPEG_j_common_ptr cinfo)
 {
 	fz_dctd *state = JZ_DCT_STATE_FROM_CINFO(cinfo);
-	cinfo->err->format_message(cinfo, state->msg);
+	cinfo->err->LJPEG_format_message(cinfo, state->msg);
 	longjmp(state->jb, 1);
 }
 
@@ -175,7 +175,7 @@ next_dctd(fz_context *ctx, fz_stream *stm, size_t max)
 		cinfo->client_data = state;
 		cinfo->err = &state->errmgr;
 		LJPEG_jpeg_std_error(cinfo->err);
-		cinfo->err->error_exit = error_exit_dct;
+		cinfo->err->LJPEG_error_exit = error_exit_dct;
 
 		fz_dct_mem_init(state);
 

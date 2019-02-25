@@ -65,12 +65,12 @@ fz_jpg_mem_term(struct LJPEG_jpeg_decompress_struct *cinfo)
 
 #endif /* SHARE_JPEG */
 
-static void error_exit(LJPEG_j_common_ptr cinfo)
+static void LJPEG_error_exit(LJPEG_j_common_ptr cinfo)
 {
 	char msg[JMSG_LENGTH_MAX];
 	fz_context *ctx = JZ_CTX_FROM_CINFO(cinfo);
 
-	cinfo->err->format_message(cinfo, msg);
+	cinfo->err->LJPEG_format_message(cinfo, msg);
 	fz_throw(ctx, FZ_ERROR_GENERIC, "jpeg error: %s", msg);
 }
 
@@ -319,7 +319,7 @@ fz_load_jpeg(fz_context *ctx, const unsigned char *rbuf, size_t rlen)
 		cinfo.global_state = 0;
 		cinfo.client_data = ctx;
 		cinfo.err = LJPEG_jpeg_std_error(&err);
-		err.error_exit = error_exit;
+		err.LJPEG_error_exit = LJPEG_error_exit;
 
 		fz_jpg_mem_init(ctx, &cinfo);
 
@@ -429,7 +429,7 @@ fz_load_jpeg_info(fz_context *ctx, const unsigned char *rbuf, size_t rlen, int *
 		cinfo.global_state = 0;
 		cinfo.client_data = ctx;
 		cinfo.err = LJPEG_jpeg_std_error(&err);
-		err.error_exit = error_exit;
+		err.LJPEG_error_exit = LJPEG_error_exit;
 
 		fz_jpg_mem_init(ctx, &cinfo);
 
