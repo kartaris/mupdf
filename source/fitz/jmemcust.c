@@ -22,7 +22,7 @@
 #include "jerror.h"
 #include "jmemcust.h"
 
-LJPEG_GLOBAL(void *)
+GLOBAL(void *)
 LJPEG_jpeg_get_small (LJPEG_j_common_ptr cinfo, size_t sizeofobject)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
@@ -30,7 +30,7 @@ LJPEG_jpeg_get_small (LJPEG_j_common_ptr cinfo, size_t sizeofobject)
 	return (void *) (cmem->j_mem_get_small)(cinfo, sizeofobject);
 }
 
-LJPEG_GLOBAL(void)
+GLOBAL(void)
 LJPEG_jpeg_free_small (LJPEG_j_common_ptr cinfo, void * object, size_t sizeofobject)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
@@ -45,7 +45,7 @@ LJPEG_jpeg_free_small (LJPEG_j_common_ptr cinfo, void * object, size_t sizeofobj
  * you probably won't be able to process useful-size images in only 64KB.
  */
 
-LJPEG_GLOBAL(void FAR *)
+GLOBAL(void FAR *)
 LJPEG_jpeg_get_large (LJPEG_j_common_ptr cinfo, size_t sizeofobject)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
@@ -53,7 +53,7 @@ LJPEG_jpeg_get_large (LJPEG_j_common_ptr cinfo, size_t sizeofobject)
 	return (void *) (cmem->j_mem_get_large)(cinfo, sizeofobject);
 }
 
-LJPEG_GLOBAL(void)
+GLOBAL(void)
 LJPEG_jpeg_free_large (LJPEG_j_common_ptr cinfo, void FAR * object, size_t sizeofobject)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
@@ -66,7 +66,7 @@ LJPEG_jpeg_free_large (LJPEG_j_common_ptr cinfo, void FAR * object, size_t sizeo
  * Here we always say, "we got all you want bud!"
  */
 
-LJPEG_GLOBAL(long)
+GLOBAL(long)
 LJPEG_jpeg_mem_available (LJPEG_j_common_ptr cinfo, long min_bytes_needed,
 		long max_bytes_needed, long already_allocated)
 {
@@ -85,8 +85,8 @@ LJPEG_jpeg_mem_available (LJPEG_j_common_ptr cinfo, long min_bytes_needed,
  * this should never be called and we can just error out.
  */
 
-LJPEG_GLOBAL(void)
-LJPEG_jpeg_open_backing_store (LJPEG_j_common_ptr cinfo, LJPEG_LJPEG_backing_store_ptr info,
+GLOBAL(void)
+LJPEG_jpeg_open_backing_store (LJPEG_j_common_ptr cinfo, LJPEG_backing_store_ptr info,
 		long total_bytes_needed)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
@@ -103,7 +103,7 @@ LJPEG_jpeg_open_backing_store (LJPEG_j_common_ptr cinfo, LJPEG_LJPEG_backing_sto
  * cleanup required. Here, there isn't any.
  */
 
-LJPEG_GLOBAL(long)
+GLOBAL(long)
 LJPEG_jpeg_mem_init (LJPEG_j_common_ptr cinfo)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
@@ -115,7 +115,7 @@ LJPEG_jpeg_mem_init (LJPEG_j_common_ptr cinfo)
 	return ret;
 }
 
-LJPEG_GLOBAL(void)
+GLOBAL(void)
 LJPEG_jpeg_mem_term (LJPEG_j_common_ptr cinfo)
 {
 	jpeg_cust_mem_data *cmem = GET_CUST_MEM_DATA(cinfo);
@@ -124,7 +124,7 @@ LJPEG_jpeg_mem_term (LJPEG_j_common_ptr cinfo)
 		(cmem->j_mem_term)(cinfo);
 }
 
-LJPEG_GLOBAL(jpeg_cust_mem_data *)
+GLOBAL(jpeg_cust_mem_data *)
 jpeg_cust_mem_init(jpeg_cust_mem_data *custm, void *priv,
 		j_custmem_init_ptr init,
 		j_custmem_term_ptr term,

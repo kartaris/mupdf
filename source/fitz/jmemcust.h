@@ -20,7 +20,7 @@ typedef LJPEG_JMETHOD(void *, j_custmem_get_small_ptr, (LJPEG_j_common_ptr cinfo
 typedef LJPEG_JMETHOD(void, j_custmem_free_small_ptr, (LJPEG_j_common_ptr cinfo, void *object, size_t size));
 typedef LJPEG_JMETHOD(void *, j_cust_mem_get_large_ptr, (LJPEG_j_common_ptr cinfo, size_t size));
 typedef LJPEG_JMETHOD(void, j_custmem_free_large_ptr, (LJPEG_j_common_ptr cinfo, void *object, size_t size));
-typedef LJPEG_JMETHOD(void, j_custmem_open_backing_store_ptr, (LJPEG_j_common_ptr cinfo, LJPEG_LJPEG_backing_store_ptr info, long total_bytes_needed));
+typedef LJPEG_JMETHOD(void, j_custmem_open_backing_store_ptr, (LJPEG_j_common_ptr cinfo, LJPEG_backing_store_ptr info, long total_bytes_needed));
 
 typedef struct {
 	j_custmem_init_ptr j_mem_init;
@@ -36,7 +36,7 @@ typedef struct {
 
 #define GET_CUST_MEM_DATA(c) ((jpeg_cust_mem_data *)c->client_data)
 
-LJPEG_GLOBAL(jpeg_cust_mem_data *)
+GLOBAL(jpeg_cust_mem_data *)
 	jpeg_cust_mem_init(jpeg_cust_mem_data *custm, void *priv,
 			j_custmem_init_ptr init,
 			j_custmem_term_ptr term,

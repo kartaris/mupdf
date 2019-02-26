@@ -15,7 +15,7 @@
 
 #else /* SHARE_JPEG */
 
-typedef void * LJPEG_LJPEG_backing_store_ptr;
+typedef void * LJPEG_backing_store_ptr;
 #include "jmemcust.h"
 
 #define JZ_CTX_FROM_CINFO(c) (fz_context *)(GET_CUST_MEM_DATA(c)->priv)

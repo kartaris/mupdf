@@ -4,7 +4,7 @@
 #include <jpeglib.h>
 
 #ifndef SHARE_JPEG
-typedef void * LJPEG_LJPEG_backing_store_ptr;
+typedef void * LJPEG_backing_store_ptr;
 #include "jmemcust.h"
 #endif
 
